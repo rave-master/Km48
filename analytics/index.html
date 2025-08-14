@@ -310,19 +310,19 @@
 
         <div class="charts-grid">
             <div class="chart-container">
-                <div class="chart-title">📈 Permits by Species</div>
+                <div class="chart-title">📈Permits by Species</div>
                 <canvas id="speciesChart"></canvas>
             </div>
             <div class="chart-container">
-                <div class="chart-title">🌳 Kind of Forest Products</div>
+                <div class="chart-title">🪵Kind of Forest Products</div>
                 <canvas id="monthlyChart"></canvas>
             </div>
             <div class="chart-container">
-                <div class="chart-title">📊 Daily Trend</div>
+                <div class="chart-title">📊Daily Trend</div>
                 <canvas id="dailyChart"></canvas>
             </div>
             <div class="chart-container">
-                <div class="chart-title">🏢 CENRO Distribution</div>
+                <div class="chart-title">🏢CENRO Distribution</div>
                 <canvas id="cenroChart"></canvas>
             </div>
         </div>
@@ -346,6 +346,7 @@
                             <th>Transport Type</th>
                             <th>Plate No.</th>
                             <th>CENRO</th>
+                            <th>Permit Issued  Type</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -706,6 +707,7 @@
                     <td>${item['Conveyance Type'] || '-'}</td>
                     <td>${item['Conveyance Plate No.'] || '-'}</td>
                     <td>${item['CENRO-Origin'] || '-'}</td>
+                    <td>${item['Permit Issued  Type'] || '-'}</td>
                 `;
                 tbody.appendChild(row);
             });
