@@ -3,12 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forest Products Transport Monitoring Dashboard - Terms of Use</title>
+    <title>Km48 Monitoring Dashboard - Terms of Use</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%); }
+        .gradient-bg {
+  background: linear-gradient(135deg, #d40000 0%, #cd1919 50%, #e34343 100%);
+  background-size: 300% 300%; /* Make it larger for movement */
+  animation: gradientMove 3s ease infinite; /* Animation name, duration, easing, repeat */
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
         .scroll-shadow { box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
     </style>
 </head>
@@ -18,7 +35,7 @@
         <div class="max-w-4xl mx-auto px-6">
             <div class="flex items-center space-x-4 mb-6">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                    <svg class="w-10 h-10 text-green-700" fill="currentColor" viewBox="0 0 24 24">
+                    <img src="denr.png" alt="DENR Logo" class="w-20 h-15">
                         <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
                         <path d="M12 8C10.9 8 10 8.9 10 10S10.9 12 12 12 14 11.1 14 10 13.1 8 12 8Z"/>
                         <path d="M7 18C7 15.24 9.24 13 12 13S17 15.24 17 18V20H7V18Z"/>
@@ -32,14 +49,15 @@
             </div>
             
             <!-- SDG Icons -->
-            <div class="flex items-center space-x-4 bg-white/10 rounded-lg p-4">
+            <div class="flex items-center space-x-4 bg-white/20 rounded-lg p-4">
                 <span class="text-sm font-medium">Supporting UN SDGs:</span>
                 <div class="flex space-x-2">
                     <div class="w-8 h-8 bg-green-600 rounded text-white text-xs font-bold flex items-center justify-center">15</div>
                     <div class="w-8 h-8 bg-blue-600 rounded text-white text-xs font-bold flex items-center justify-center">13</div>
                     <div class="w-8 h-8 bg-orange-600 rounded text-white text-xs font-bold flex items-center justify-center">12</div>
+                    <div class="w-8 h-8 bg-purple-600 rounded text-white text-xs font-bold flex items-center justify-center">12</div>
                 </div>
-                <span class="text-xs text-green-100">Life on Land • Climate Action • Responsible Consumption</span>
+                <span class="text-xs text-green-100">Life on Land • Climate Action • Responsible Consumption • Peace, Justice, and Strong Institutions</span>
             </div>
         </div>
     </div>
@@ -50,12 +68,12 @@
         <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to the Forest Products Transport Monitoring System</h2>
             <p class="text-gray-600 leading-relaxed mb-4">
-                This dashboard provides real-time monitoring and tracking of forest products transportation across the Philippines, 
+                This dashboard provides real-time monitoring and tracking of forest products transportation across Davao del Norte, 
                 supporting sustainable forest management and compliance with environmental regulations. By accessing this system, 
                 you contribute to the protection of our nation's forest resources and biodiversity.
             </p>
             <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
-                <p class="text-green-800 font-medium">🌲 Protecting Philippine Forests for Future Generations</p>
+                <p class="text-green-800 font-medium">Protecting Philippine Forests for Future Generations</p>
                 <p class="text-green-700 text-sm mt-1">This system aligns with the Philippines' commitment to sustainable development and forest conservation.</p>
             </div>
         </div>
@@ -187,7 +205,7 @@
         <div class="bg-white rounded-lg shadow-lg p-8">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold text-gray-800">Agreement Required</h3>
-                <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Version 2.1 - December 2024</span>
+                <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Version 2.1 - July 2025</span>
             </div>
             
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
@@ -223,7 +241,7 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 mt-12">
         <div class="max-w-4xl mx-auto px-6 text-center">
-            <p class="text-gray-300">© 2024 Department of Environment and Natural Resources, Republic of the Philippines</p>
+            <p class="text-gray-300">© 2025 Department of Environment and Natural Resources, Republic of the Philippines</p>
             <p class="text-gray-400 text-sm mt-2">Protecting and conserving the environment and natural resources for sustainable development</p>
         </div>
     </footer>
