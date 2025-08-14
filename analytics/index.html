@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Products Transport Dashboard</title>
+
+<script>
+    const AGREEMENT_VERSION = '2.1';
+
+    // Check agreement in storage
+    const storedVersion = sessionStorage.getItem('denr_agreement_version');
+    const agreementAccepted = sessionStorage.getItem('denr_agreement_accepted');
+
+    if (storedVersion !== AGREEMENT_VERSION || agreementAccepted !== 'true') {
+        // Redirect to agreement page if not accepted
+        window.location.href = '/index.html'; // Your cover page filename
+    }
+</script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ec3333 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .filters-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Forest Products Transport Dashboard</h1>
+            <p>Monthly analytics and monitoring of forest product permits and transportation</p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px;">
+                <button class="refresh-btn" onclick="previousMonth()">← Previous Month</button>
+                <div style="background: #ecf0f1; padding: 10px 20px; border-radius: 8px; font-weight: bold; color: #2c3e50;">
+                    <span id="currentMonth">Loading...</span>
+                </div>
+                <button class="refresh-btn" onclick="nextMonth()">Next Month →</button>
+                <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalPermits">-</div>
+                <div class="stat-label">Total Permits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalVolume">-</div>
+                <div class="stat-label">Total Volume (CU.M)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalBdFt">-</div>
+                <div class="stat-label">Total BD.FT</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalPieces">-</div>
+                <div class="stat-label">Total Pieces</div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Filters & Controls</h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Date Range From:</label>
+                    <input type="date" id="dateFrom" onchange="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label>Date Range To:</label>
+                    <input type="date" id="dateTo" onchange="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label>Destination -Address/Location:</label>
+                    <select id="speciesFilter" onchange="applyFilters()">
+                        <option value="">All Destinations</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>CENRO Origin:</label>
+                    <select id="cenroFilter" onchange="applyFilters()">
+                        <option value="">All CENRO</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">📈 Permits by Species</div>
+                <canvas id="speciesChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🌳 Kind of Forest Products</div>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">📊 Daily Trend</div>
+                <canvas id="dailyChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🏢 CENRO Distribution</div>
+                <canvas id="cenroChart"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="table-header">
+                📋 Recent Permits Data
+            </div>
+            <div class="table-container">
+                <div id="loadingMessage" class="loading">Loading data...</div>
+                <div id="errorMessage" class="error" style="display: none;"></div>
+                <table id="dataTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Permittee</th>
+                            <th>Species</th>
+                            <th>Pieces</th>
+                            <th>Volume (CU.M)</th>
+                            <th>BD.FT</th>
+                            <th>Transport Type</th>
+                            <th>Plate No.</th>
+                            <th>CENRO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = [];
+        let filteredData = [];
+        let charts = {};
+        let currentDate = new Date();
+
+        // API endpoint
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyYReWmhvUY-ECqMaSEP2oNft1GzfjK01du-hNdUk_fn5KOaymGcebSDF0KREBzMJzvNQ/exec';
+
+        // Monthly navigation functions
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            filterByCurrentMonth();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            filterByCurrentMonth();
+        }
+
+        function filterByCurrentMonth() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            filteredData = allData.filter(item => {
+                const itemDate = new Date(item['Date']);
+                return itemDate.getFullYear() === year && itemDate.getMonth() === month;
+            });
+
+            updateCurrentMonthDisplay();
+            updateStats();
+            updateCharts();
+            updateTable();
+        }
+
+        function updateCurrentMonthDisplay() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('currentMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        }
+
+        // Load data from Google Sheets
+        async function loadData() {
+            try {
+                document.getElementById('loadingMessage').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('dataTable').style.display = 'none';
+
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                allData = data;
+                
+                // Filter by current month on initial load
+                filterByCurrentMonth();
+                updateFilters();
+                
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('dataTable').style.display = 'table';
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').textContent = 'Failed to load data. Please check your connection and try again.';
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalPermits = filteredData.length;
+            
+            // Try different possible field names for CU.M
+            const totalVolume = filteredData.reduce((sum, item) => {
+                const volume = parseFloat(item['CU.M']) || parseFloat(item['CU.M.']) || parseFloat(item['Volume']) || 0;
+                return sum + volume;
+            }, 0);
+            
+            // Try different possible field names for BD.FT
+            const totalBdFt = filteredData.reduce((sum, item) => {
+                const bdft = parseFloat(item['BD.FT']) || parseFloat(item['BD.FT.']) || parseFloat(item['BDFT']) || 0;
+                return sum + bdft;
+            }, 0);
+            
+            // Try different possible field names for pieces
+            const totalPieces = filteredData.reduce((sum, item) => {
+                const pieces = parseInt(item['No. of Pieces']) || parseInt(item['No of Pieces']) || parseInt(item['Pieces']) || 0;
+                return sum + pieces;
+            }, 0);
+
+            document.getElementById('totalPermits').textContent = totalPermits.toLocaleString();
+            document.getElementById('totalVolume').textContent = totalVolume > 0 ? totalVolume.toFixed(2) : '0.00';
+            document.getElementById('totalBdFt').textContent = totalBdFt > 0 ? totalBdFt.toFixed(2) : '0.00';
+            document.getElementById('totalPieces').textContent = totalPieces.toLocaleString();
+        }
+
+        // Update filter options
+        function updateFilters() {
+            const destinations = [...new Set(allData.map(item => item['Destination -Address/Location']))].filter(Boolean).sort();
+            const cenros = [...new Set(allData.map(item => item['CENRO-Origin']))].filter(Boolean).sort();
+
+            const destinationSelect = document.getElementById('speciesFilter');
+            const cenroSelect = document.getElementById('cenroFilter');
+
+            // Clear existing options (except "All")
+            destinationSelect.innerHTML = '<option value="">All Destinations</option>';
+            cenroSelect.innerHTML = '<option value="">All CENRO</option>';
+
+            destinations.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d;
+                option.textContent = d;
+                destinationSelect.appendChild(option);
+            });
+
+            cenros.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c;
+                option.textContent = c;
+                cenroSelect.appendChild(option);
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const destination = document.getElementById('speciesFilter').value;
+            const cenro = document.getElementById('cenroFilter').value;
+
+            filteredData = allData.filter(item => {
+                const itemDate = new Date(item['Date']);
+                
+                if (dateFrom && itemDate < new Date(dateFrom)) return false;
+                if (dateTo && itemDate > new Date(dateTo)) return false;
+                if (destination && item['Destination -Address/Location'] !== destination) return false;
+                if (cenro && item['CENRO-Origin'] !== cenro) return false;
+                
+                return true;
+            });
+
+            updateStats();
+            updateCharts();
+            updateTable();
+        }
+
+        // Update charts
+        function updateCharts() {
+            updateSpeciesChart();
+            updateMonthlyChart();
+            updateDailyChart();
+            updateCenroChart();
+        }
+
+        function updateSpeciesChart() {
+            const speciesCount = {};
+            filteredData.forEach(item => {
+                const species = item['Species'] || 'Unknown';
+                speciesCount[species] = (speciesCount[species] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('speciesChart').getContext('2d');
+            
+            if (charts.species) {
+                charts.species.destroy();
+            }
+
+            charts.species = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(speciesCount),
+                    datasets: [{
+                        data: Object.values(speciesCount),
+                        backgroundColor: [
+                            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                            '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMonthlyChart() {
+            const forestProductsCount = {};
+            filteredData.forEach(item => {
+                const product = item['Kind of Forest Products'] || 'Unknown';
+                forestProductsCount[product] = (forestProductsCount[product] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            if (charts.monthly) {
+                charts.monthly.destroy();
+            }
+
+            charts.monthly = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(forestProductsCount),
+                    datasets: [{
+                        label: 'Count',
+                        data: Object.values(forestProductsCount),
+                        backgroundColor: [
+                            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                            '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
+                        ],
+                        borderColor: [
+                            '#2980b9', '#c0392b', '#27ae60', '#e67e22', '#8e44ad',
+                            '#16a085', '#2c3e50', '#d35400', '#7f8c8d', '#f39c12'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDailyChart() {
+            const dailyCount = {};
+            filteredData.forEach(item => {
+                const date = new Date(item['Date']);
+                const day = date.getDate();
+                dailyCount[day] = (dailyCount[day] || 0) + 1;
+            });
+
+            // Create array for all days of the month
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            const labels = [];
+            const data = [];
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                labels.push(i.toString());
+                data.push(dailyCount[i] || 0);
+            }
+
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            
+            if (charts.daily) {
+                charts.daily.destroy();
+            }
+
+            charts.daily = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Permits per Day',
+                        data: data,
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        borderColor: '#2ecc71',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Day of Month'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCenroChart() {
+            const cenroCount = {};
+            filteredData.forEach(item => {
+                const cenro = item['CENRO-Origin'] || 'Unknown';
+                cenroCount[cenro] = (cenroCount[cenro] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('cenroChart').getContext('2d');
+            
+            if (charts.cenro) {
+                charts.cenro.destroy();
+            }
+
+            charts.cenro = new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: Object.keys(cenroCount),
+                    datasets: [{
+                        data: Object.values(cenroCount),
+                        backgroundColor: [
+                            '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
+                            '#1abc9c', '#34495e', '#e67e22'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update table
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            filteredData.slice(0, 50).forEach(item => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${new Date(item['Date']).toLocaleDateString()}</td>
+                    <td>${item['Permittee'] || '-'}</td>
+                    <td>${item['Species'] || '-'}</td>
+                    <td>${item['No. of Pieces'] || item['No of Pieces'] || item['Pieces'] || '-'}</td>
+                    <td>${item['CU.M'] || item['CU.M.'] || item['Volume'] || '-'}</td>
+                    <td>${item['BD.FT'] || item['BD.FT.'] || item['BDFT'] || '-'}</td>
+                    <td>${item['Conveyance Type'] || '-'}</td>
+                    <td>${item['Conveyance Plate No.'] || '-'}</td>
+                    <td>${item['CENRO-Origin'] || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96ed3d1a6347fee4',t:'MTc1NTE0MDgxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
