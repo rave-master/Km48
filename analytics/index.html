@@ -25,6 +25,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -284,6 +285,7 @@
                 </div>
                 <button class="refresh-btn" onclick="nextMonth()">Next Month →</button>
                 <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+                <button class="refresh-btn" onclick="generatePDFReport()" style="background: #c20d0d;">📄 Generate PDF Report</button>
             </div>
         </div>
 
@@ -852,6 +854,274 @@
                 tbody.appendChild(row);
             });
         }
+
+         // Generate PDF Report
+        function generatePDFReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'pt',
+                format: 'a4' // A4 size (595.28 x 841.89 points)
+            });
+            
+            // Get current month info
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const currentMonthName = monthNames[currentDate.getMonth()];
+            const currentYear = currentDate.getFullYear();
+            
+            // Calculate statistics
+            const totalPermits = filteredData.length;
+            const totalVolume = filteredData.reduce((sum, item) => {
+                const volume = parseFloat(item['CU.M']) || parseFloat(item['CU.M.']) || parseFloat(item['Volume']) || 0;
+                return sum + volume;
+            }, 0);
+            const totalBdFt = filteredData.reduce((sum, item) => {
+                const bdft = parseFloat(item['BD.FT']) || parseFloat(item['BD.FT.']) || parseFloat(item['BDFT']) || 0;
+                return sum + bdft;
+            }, 0);
+            const totalPieces = filteredData.reduce((sum, item) => {
+                const pieces = parseInt(item['No. of Pieces']) || parseInt(item['No of Pieces']) || parseInt(item['Pieces']) || 0;
+                return sum + pieces;
+            }, 0);
+
+            // Calculate analytics
+            const speciesCount = {};
+            const cenroCount = {};
+            const destinationCount = {};
+            const permitTypeCount = {};
+            const dailyCount = {};
+
+            filteredData.forEach(item => {
+                // Species analysis
+                const species = item['Species'] || 'Unknown';
+                speciesCount[species] = (speciesCount[species] || 0) + 1;
+                
+                // CENRO analysis
+                const cenro = item['CENRO-Origin'] || 'Unknown';
+                cenroCount[cenro] = (cenroCount[cenro] || 0) + 1;
+                
+                // Destination analysis
+                const destination = item['Destination -Address/Location'] || 'Unknown';
+                destinationCount[destination] = (destinationCount[destination] || 0) + 1;
+                
+                // Permit type analysis
+                const permitType = item['Permit Issued  Type'] || item['Permit Issued Type'] || 'Unknown';
+                permitTypeCount[permitType] = (permitTypeCount[permitType] || 0) + 1;
+                
+                // Daily analysis
+                const date = new Date(item['Date']);
+                const day = date.getDate();
+                dailyCount[day] = (dailyCount[day] || 0) + 1;
+            });
+
+            // Define margins: 1 inch left (72pt), 0.5 inch right (36pt)
+            const leftMargin = 72;
+            const rightMargin = 36;
+            const pageWidth = 595.28; // A4 width
+            const textWidth = pageWidth - leftMargin - rightMargin; // Available text width
+            const centerX = pageWidth / 2;
+            
+            // Start building PDF
+            let yPosition = 50;
+            
+            // Header
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('Forest Products Transport Report', centerX, yPosition, { align: 'center' });
+            yPosition += 20;
+            
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${currentMonthName} ${currentYear}`, centerX, yPosition, { align: 'center' });
+            yPosition += 30;
+
+            // Executive Summary
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Executive Summary', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            
+            const summary = `During ${currentMonthName} ${currentYear}, the forest products transportation system processed a total of ${totalPermits} permits. This represents the movement of ${totalVolume.toFixed(2)} cubic meters (CU.M) and ${totalBdFt.toFixed(2)} board feet (BD.FT) of forest products, comprising ${totalPieces.toLocaleString()} individual pieces.`;
+            
+            const summaryLines = doc.splitTextToSize(summary, textWidth);
+            summaryLines.forEach(line => {
+                doc.text(line, leftMargin, yPosition);
+                yPosition += 15;
+            });
+            yPosition += 20;
+
+            // Key Statistics
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Key Performance Indicators', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`• Total Permits Issued: ${totalPermits.toLocaleString()}`, leftMargin + 20, yPosition);
+            yPosition += 15;
+            doc.text(`• Total Volume Transported: ${totalVolume.toFixed(2)} CU.M`, leftMargin + 20, yPosition);
+            yPosition += 15;
+            doc.text(`• Total Board Feet: ${totalBdFt.toFixed(2)} BD.FT`, leftMargin + 20, yPosition);
+            yPosition += 15;
+            doc.text(`• Total Pieces: ${totalPieces.toLocaleString()}`, leftMargin + 20, yPosition);
+            yPosition += 15;
+            doc.text(`• Average Volume per Permit: ${totalPermits > 0 ? (totalVolume / totalPermits).toFixed(2) : '0.00'} CU.M`, leftMargin + 20, yPosition);
+            yPosition += 25;
+
+            // Species Analysis
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Species Distribution Analysis', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const topSpecies = Object.entries(speciesCount).sort(([,a], [,b]) => b - a).slice(0, 5);
+            const speciesAnalysis = `The most transported species this month were: ${topSpecies.map(([species, count]) => `${species} (${count} permits, ${((count/totalPermits)*100).toFixed(1)}%)`).join(', ')}. This distribution indicates the primary forest products being harvested and transported in the region.`;
+            
+            const speciesLines = doc.splitTextToSize(speciesAnalysis, textWidth);
+            speciesLines.forEach(line => {
+                doc.text(line, leftMargin, yPosition);
+                yPosition += 15;
+            });
+            yPosition += 20;
+
+            // CENRO Analysis
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('CENRO Origin Analysis', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const topCenros = Object.entries(cenroCount).sort(([,a], [,b]) => b - a).slice(0, 3);
+            const cenroAnalysis = `The most active CENRO offices were: ${topCenros.map(([cenro, count]) => `${cenro} (${count} permits)`).join(', ')}. This shows the geographic distribution of forest product activities across different administrative regions.`;
+            
+            const cenroLines = doc.splitTextToSize(cenroAnalysis, textWidth);
+            cenroLines.forEach(line => {
+                doc.text(line, leftMargin, yPosition);
+                yPosition += 15;
+            });
+            yPosition += 20;
+
+            // Check if we need a new page (A4 height = 841.89pt)
+            if (yPosition > 750) {
+                doc.addPage();
+                yPosition = 50;
+            }
+
+            // Destination Analysis
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Destination Analysis', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const topDestinations = Object.entries(destinationCount).sort(([,a], [,b]) => b - a).slice(0, 3);
+            const destAnalysis = `The primary destinations for forest products were: ${topDestinations.map(([dest, count]) => `${dest.substring(0, 40)}${dest.length > 40 ? '...' : ''} (${count} permits)`).join(', ')}. This indicates the main markets and processing facilities receiving forest products.`;
+            
+            const destLines = doc.splitTextToSize(destAnalysis, textWidth);
+            destLines.forEach(line => {
+                doc.text(line, leftMargin, yPosition);
+                yPosition += 15;
+            });
+            yPosition += 20;
+
+            // Permit Type Analysis
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Permit Type Distribution', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const topPermitTypes = Object.entries(permitTypeCount).sort(([,a], [,b]) => b - a);
+            const permitAnalysis = `Permit types issued: ${topPermitTypes.map(([type, count]) => `${type} (${count} permits, ${((count/totalPermits)*100).toFixed(1)}%)`).join(', ')}. This breakdown shows the regulatory compliance and types of forest product activities.`;
+            
+            const permitLines = doc.splitTextToSize(permitAnalysis, textWidth);
+            permitLines.forEach(line => {
+                doc.text(line, leftMargin, yPosition);
+                yPosition += 15;
+            });
+            yPosition += 25;
+
+            // Daily Activity Analysis
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Daily Activity Pattern', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const dailyValues = Object.values(dailyCount);
+            const avgDaily = dailyValues.length > 0 ? (dailyValues.reduce((a, b) => a + b, 0) / dailyValues.length).toFixed(1) : 0;
+            const maxDaily = Math.max(...dailyValues, 0);
+            const activeDays = Object.keys(dailyCount).length;
+            
+            const dailyAnalysis = `Forest product transportation showed ${activeDays} active days during the month, with an average of ${avgDaily} permits per active day. The peak activity day recorded ${maxDaily} permits, indicating ${maxDaily > avgDaily * 1.5 ? 'significant variation' : 'consistent activity'} in daily operations.`;
+            
+            const dailyLines = doc.splitTextToSize(dailyAnalysis, textWidth);
+            dailyLines.forEach(line => {
+                doc.text(line, leftMargin, yPosition);
+                yPosition += 15;
+            });
+            yPosition += 25;
+
+            // Recommendations
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Recommendations & Insights', leftMargin, yPosition);
+            yPosition += 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            
+            let recommendations = [];
+            
+            if (totalPermits > 100) {
+                recommendations.push('High permit volume indicates active forest industry - consider streamlining processes for efficiency.');
+            }
+            
+            if (topSpecies.length > 0 && topSpecies[0][1] / totalPermits > 0.5) {
+                recommendations.push(`${topSpecies[0][0]} dominates transportation (${((topSpecies[0][1]/totalPermits)*100).toFixed(1)}%) - monitor for sustainable harvesting.`);
+            }
+            
+            if (activeDays < 20) {
+                recommendations.push('Transportation activity concentrated in fewer days - consider workload distribution optimization.');
+            }
+            
+            if (recommendations.length === 0) {
+                recommendations.push('Current forest product transportation patterns appear balanced and sustainable.');
+            }
+            
+            recommendations.forEach(rec => {
+                const recLines = doc.splitTextToSize(`• ${rec}`, textWidth - 20);
+                recLines.forEach(line => {
+                    doc.text(line, leftMargin + 20, yPosition);
+                    yPosition += 15;
+                });
+                yPosition += 5;
+            });
+
+            // Footer
+            yPosition += 20;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'italic');
+            doc.text(`Report generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, centerX, yPosition, { align: 'center' });
+            doc.text('Forest Products Transport Dashboard - Automated Monthly Report', centerX, yPosition + 15, { align: 'center' });
+
+            // Save the PDF
+            doc.save(`Forest_Products_Report_${currentMonthName}_${currentYear}.pdf`);
+        }
+
+
+
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
