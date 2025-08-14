@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MES Personnel Travel Dashboard</title>
+  <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    }
+    
+    .travel-card {
+      transition: all 0.3s ease;
+    }
+    
+    .travel-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .loader {
+      border-top-color: #3498db;
+      animation: spinner 1.5s linear infinite;
+    }
+    
+    @keyframes spinner {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .month-slider {
+      transition: transform 0.3s ease;
+    }
+    
+    .nav-button {
+      transition: all 0.2s ease;
+    }
+    
+    .nav-button:hover {
+      transform: scale(1.05);
+    }
+    
+    .nav-button:active {
+      transform: scale(0.95);
+    }
+    
+    .status-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .empty-state {
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    
+    .travel-table th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #2563eb; /* Solid blue background */
+      color: white;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Header -->
+<div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+  <div class="flex flex-col md:flex-row justify-between items-center">
+    <div class="flex items-center mb-4 md:mb-0">
+      <div class="bg-blue-600 p-3 rounded-lg mr-4">
+        <i class="fas fa-car text-white text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">MES Personnel Travel Dashboard</h1>
+        <p class="text-gray-500">Track and manage employee travel plans</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <span id="connectionStatus" class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        <i class="fas fa-circle text-xs mr-1"></i> Connected
+      </span>
+      <button id="refreshBtn" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-lg transition-all">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <a href="calendar.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+        Calendar View
+      </a>
+      <a href="https://forms.gle/Ta7q5xYo6RGpctDYA" target="_blank" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all">
+        📄Fill Me Up
+      </a>
+    </div>
+  </div>
+</div>
+
+    
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column - Filters -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-filter text-blue-600 mr-2"></i> Filters
+          </h2>
+          
+          <!-- Personnel Dropdown -->
+          <div class="mb-6">
+            <label for="personnel" class="block text-sm font-medium text-gray-700 mb-2">Select Personnel:</label>
+            <div class="relative">
+              <select id="personnel" class="w-full p-3 border border-gray-300 rounded-lg pl-4 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
+                <option value="">All Personnel</option>
+                <option value="Ramel S. Espejo">Ramel S. Espejo</option>
+                <option value="Condrado T. Barredo">Condrado T. Barredo</option>
+                <option value="June Cyril L. Caliao">June C. Caliao</option>
+                <option value="Marvin P. Castrence">Marvin P. Castrence</option>
+                <option value="Kim Norman B. Apura">Kim Norman B. Apura</option>
+                <option value="Arnold F. Lucas">Arnold F. Lucas</option>
+                <option value="Debbie Jason S. Savillo">Debbie J. Savillo</option>
+                <option value="Ara Kristeen C. Prusia">Ara Kristeen Prusia</option>
+                <option value="Razel Mainar">Razel Mainar</option>
+                
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Month Navigation -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Travel Period:</label>
+            <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+              <button id="prevMonth" class="nav-button w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-blue-50 text-blue-600">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <h2 id="monthYear" class="text-lg font-semibold text-gray-800"></h2>
+              <button id="nextMonth" class="nav-button w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-blue-50 text-blue-600">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Stats -->
+          <div class="pt-4 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 mb-3">Travel Statistics</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-blue-50 rounded-lg p-3 text-center">
+                <div class="text-2xl font-bold text-blue-600" id="totalTrips">0</div>
+                <div class="text-xs text-gray-500">Total Trips</div>
+              </div>
+              <div class="bg-green-50 rounded-lg p-3 text-center">
+                <div class="text-2xl font-bold text-green-600" id="activeTrips">0</div>
+                <div class="text-xs text-gray-500">Active Trips</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl shadow-lg p-6 text-white">
+          <h3 class="font-semibold mb-3">Need Help?</h3>
+          <p class="text-sm text-blue-100 mb-4">Contact the travel department for assistance with travel plans and arrangements.</p>
+         <a href="contact.html" class="inline-flex items-center bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors">
+  <i class="fas fa-headset mr-2"></i> Contact Support
+</a>
+
+          </button>
+        </div>
+      </div>
+      
+      <!-- Right Column - Results -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6 relative">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold flex items-center">
+              <i class="fas fa-calendar-alt text-blue-600 mr-2"></i> Travel Schedule
+            </h2>
+            <div class="flex space-x-2">
+              <button id="viewToggleList" class="px-3 py-1 rounded-lg bg-blue-600 text-white text-sm">
+                <i class="fas fa-list mr-1"></i> List
+              </button>
+              <button id="viewToggleCard" class="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm">
+                <i class="fas fa-th-large mr-1"></i> Cards
+              </button>
+            </div>
+          </div>
+          
+          <!-- Loading State -->
+          <div id="loadingState" class="flex flex-col items-center justify-center py-12">
+            <div class="loader w-12 h-12 border-4 border-blue-200 border-t-4 rounded-full mb-4"></div>
+            <p class="text-gray-500">Loading travel data...</p>
+          </div>
+          
+          <!-- Empty State -->
+          <div id="emptyState" class="hidden empty-state flex flex-col items-center justify-center py-12 text-center">
+            <div class="bg-gray-100 p-6 rounded-full mb-4">
+              <i class="fas fa-plane-slash text-gray-400 text-4xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">No Travel Plans Found</h3>
+            <p class="text-gray-500 max-w-md">There are no travel plans for the selected personnel during this month.</p>
+          </div>
+          
+          <!-- Table View -->
+          <div id="tableView" class="overflow-x-auto max-h-[500px] hidden">
+            <table class="min-w-full border border-gray-200 text-sm travel-table">
+              <thead>
+                <tr>
+                  <th class="px-4 py-3 border">Name</th>
+                  <th class="px-4 py-3 border">Destination</th>
+                  <th class="px-4 py-3 border">Purpose</th>
+                  <th class="px-4 py-3 border">Date of Travel</th>
+                  <th class="px-4 py-3 border">Date of Return</th>
+                  <th class="px-4 py-3 border">Status</th>
+                </tr>
+              </thead>
+              <tbody id="travelBody"></tbody>
+            </table>
+          </div>
+          
+          <!-- Card View -->
+          <div id="cardView" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+            <!-- Cards will be inserted here by JavaScript -->
+          </div>
+        </div>
+        
+        <!-- Summary Section -->
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">
+          <h3 class="text-lg font-semibold mb-3 text-gray-700">Monthly Summary</h3>
+          <div id="summaryStats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+              <div class="text-xs text-gray-500">Total Personnel</div>
+              <div class="text-xl font-bold text-gray-800" id="totalPersonnel">0</div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+              <div class="text-xs text-gray-500">Total Destinations</div>
+              <div class="text-xl font-bold text-gray-800" id="totalDestinations">0</div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+              <div class="text-xs text-gray-500">Longest Trip</div>
+              <div class="text-xl font-bold text-gray-800" id="longestTrip">0 days</div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+              <div class="text-xs text-gray-500">Upcoming Trips</div>
+              <div class="text-xl font-bold text-gray-800" id="upcomingTrips">0</div>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 text-right">Last updated: <span id="lastUpdated"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "https://script.google.com/macros/s/AKfycby6uwSnjv-YT5w9Xky3PU-ivOC6WDf4rqensKTW-llVbikm1-JOBF1gC9OLEjb164M/exec";
+    const personnelSelect = document.getElementById('personnel');
+    const travelBody = document.getElementById('travelBody');
+    const monthYearLabel = document.getElementById('monthYear');
+    const prevBtn = document.getElementById('prevMonth');
+    const nextBtn = document.getElementById('nextMonth');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const tableView = document.getElementById('tableView');
+    const cardView = document.getElementById('cardView');
+    const viewToggleList = document.getElementById('viewToggleList');
+    const viewToggleCard = document.getElementById('viewToggleCard');
+    const lastUpdated = document.getElementById('lastUpdated');
+    
+    // Stats elements
+    const totalTripsEl = document.getElementById('totalTrips');
+    const activeTripsEl = document.getElementById('activeTrips');
+    const totalPersonnelEl = document.getElementById('totalPersonnel');
+    const totalDestinationsEl = document.getElementById('totalDestinations');
+    const longestTripEl = document.getElementById('longestTrip');
+    const upcomingTripsEl = document.getElementById('upcomingTrips');
+
+    let allData = [];
+    let currentDate = new Date();
+    let currentView = 'table';
+
+    // Initialize the application
+    function init() {
+      updateMonthDisplay();
+      fetchData();
+      setupEventListeners();
+    }
+
+    // Set up event listeners
+    function setupEventListeners() {
+      personnelSelect.addEventListener('change', displayFilteredData);
+      prevBtn.addEventListener('click', previousMonth);
+      nextBtn.addEventListener('click', nextMonth);
+      refreshBtn.addEventListener('click', fetchData);
+      viewToggleList.addEventListener('click', () => setView('table'));
+      viewToggleCard.addEventListener('click', () => setView('card'));
+    }
+
+    // Toggle between table and card views
+    function setView(view) {
+      currentView = view;
+      
+      if (view === 'table') {
+        tableView.classList.remove('hidden');
+        cardView.classList.add('hidden');
+        viewToggleList.classList.add('bg-blue-600', 'text-white');
+        viewToggleList.classList.remove('bg-gray-200', 'text-gray-700');
+        viewToggleCard.classList.add('bg-gray-200', 'text-gray-700');
+        viewToggleCard.classList.remove('bg-blue-600', 'text-white');
+      } else {
+        tableView.classList.add('hidden');
+        cardView.classList.remove('hidden');
+        viewToggleCard.classList.add('bg-blue-600', 'text-white');
+        viewToggleCard.classList.remove('bg-gray-200', 'text-gray-700');
+        viewToggleList.classList.add('bg-gray-200', 'text-gray-700');
+        viewToggleList.classList.remove('bg-blue-600', 'text-white');
+      }
+      
+      displayFilteredData();
+    }
+
+    // Format "YYYY-MM-DD" to "Tuesday, 22 July 2025"
+    function formatFullDate(dateString) {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('en-PH', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    // Format date for display in cards
+    function formatCardDate(dateString) {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('en-PH', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    // Update month and year label
+    function updateMonthDisplay() {
+      monthYearLabel.textContent = new Intl.DateTimeFormat('en-PH', {
+        month: 'long',
+        year: 'numeric'
+      }).format(currentDate);
+    }
+
+    // Navigate to previous month
+    function previousMonth() {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      updateMonthDisplay();
+      displayFilteredData();
+    }
+
+    // Navigate to next month
+    function nextMonth() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      updateMonthDisplay();
+      displayFilteredData();
+    }
+
+    // Check if a given date string is in the current displayed month
+    function isInCurrentMonth(dateStr) {
+      if (!dateStr) return false;
+      const date = new Date(dateStr);
+      return (
+        date.getMonth() === currentDate.getMonth() &&
+        date.getFullYear() === currentDate.getFullYear()
+      );
+    }
+
+    // Calculate trip status based on dates
+    function getTripStatus(startDate, endDate) {
+      const now = new Date();
+      const start = new Date(startDate);
+      const end = endDate ? new Date(endDate) : null;
+      
+      if (start > now) {
+        return { status: 'upcoming', label: 'Upcoming', color: 'blue' };
+      } else if (!end || now <= end) {
+        return { status: 'active', label: 'Active', color: 'green' };
+      } else {
+        return { status: 'completed', label: 'Completed', color: 'gray' };
+      }
+    }
+
+    // Calculate trip duration in days
+    function getTripDuration(startDate, endDate) {
+      if (!startDate || !endDate) return 0;
+      
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays;
+    }
+
+    // Fetch data from API
+    function fetchData() {
+      showLoading(true);
+      updateConnectionStatus('loading');
+      
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          allData = data;
+          updateLastUpdated();
+          updateConnectionStatus('connected');
+          displayFilteredData();
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          updateConnectionStatus('error');
+          showEmptyState(true, 'Failed to load data. Please try again.');
+        })
+        .finally(() => {
+          showLoading(false);
+        });
+    }
+
+    // Update connection status indicator
+    function updateConnectionStatus(status) {
+      switch(status) {
+        case 'connected':
+          connectionStatus.className = 'px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+          connectionStatus.innerHTML = '<i class="fas fa-circle text-xs mr-1"></i> Connected';
+          break;
+        case 'loading':
+          connectionStatus.className = 'px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+          connectionStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin text-xs mr-1"></i> Loading';
+          break;
+        case 'error':
+          connectionStatus.className = 'px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+          connectionStatus.innerHTML = '<i class="fas fa-exclamation-circle text-xs mr-1"></i> Connection Error';
+          break;
+      }
+    }
+
+    // Show/hide loading state
+    function showLoading(show) {
+      if (show) {
+        loadingState.classList.remove('hidden');
+        tableView.classList.add('hidden');
+        cardView.classList.add('hidden');
+        emptyState.classList.add('hidden');
+      } else {
+        loadingState.classList.add('hidden');
+      }
+    }
+
+    // Show/hide empty state
+    function showEmptyState(show, message = 'No travel plans found for the selected criteria.') {
+      if (show) {
+        emptyState.classList.remove('hidden');
+        tableView.classList.add('hidden');
+        cardView.classList.add('hidden');
+        emptyState.querySelector('p').textContent = message;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+    }
+
+    // Update last updated timestamp
+    function updateLastUpdated() {
+      const now = new Date();
+      lastUpdated.textContent = now.toLocaleTimeString('en-PH', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+
+    // Display filtered data
+    function displayFilteredData() {
+      const selected = personnelSelect.value;
+      travelBody.innerHTML = '';
+      cardView.innerHTML = '';
+      
+      // Filter data by personnel and month
+      const filtered = allData.filter(row => {
+        const matchesPerson = !selected || row["Name"] === selected;
+        const matchesMonth = isInCurrentMonth(row["Date of Travel"]) || isInCurrentMonth(row["Date of Return"]);
+        return matchesPerson && matchesMonth;
+      });
+      
+      // Show empty state if no results
+      if (filtered.length === 0) {
+        showEmptyState(true);
+        updateStats(filtered);
+        return;
+      }
+      
+      // Show results
+      showEmptyState(false);
+      
+      if (currentView === 'table') {
+        tableView.classList.remove('hidden');
+        displayTableView(filtered);
+      } else {
+        cardView.classList.remove('hidden');
+        displayCardView(filtered);
+      }
+      
+      // Update statistics
+      updateStats(filtered);
+    }
+    
+    // Display data in table view
+    function displayTableView(data) {
+      travelBody.innerHTML = '';
+      
+      data.forEach(row => {
+        const tripStatus = getTripStatus(row["Date of Travel"], row["Date of Return"]);
+        
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50 transition-colors';
+        
+        tr.innerHTML = `
+          <td class="px-4 py-3 border">${row["Name"] || ''}</td>
+          <td class="px-4 py-3 border">${row["Destination"] || ''}</td>
+          <td class="px-4 py-3 border">${row["Purpose"] || ''}</td>
+          <td class="px-4 py-3 border">${formatFullDate(row["Date of Travel"]) || ''}</td>
+          <td class="px-4 py-3 border">${formatFullDate(row["Date of Return"]) || ''}</td>
+          <td class="px-4 py-3 border">
+            <span class="px-2 py-1 rounded-full text-xs font-medium bg-${tripStatus.color}-100 text-${tripStatus.color}-800">
+              ${tripStatus.label}
+            </span>
+          </td>
+        `;
+        
+        travelBody.appendChild(tr);
+      });
+    }
+    
+    // Display data in card view
+    function displayCardView(data) {
+      cardView.innerHTML = '';
+      
+      data.forEach(row => {
+        const tripStatus = getTripStatus(row["Date of Travel"], row["Date of Return"]);
+        const duration = getTripDuration(row["Date of Travel"], row["Date of Return"]);
+        
+        const card = document.createElement('div');
+        card.className = 'travel-card bg-white rounded-lg shadow-sm overflow-hidden relative';
+        
+        // Status badge
+        const statusBadge = document.createElement('div');
+        statusBadge.className = `status-badge px-2 py-1 rounded-full text-xs font-medium bg-${tripStatus.color}-100 text-${tripStatus.color}-800 shadow-sm`;
+        statusBadge.textContent = tripStatus.label;
+        
+        card.innerHTML = `
+          <div class="p-4">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="font-medium text-gray-800">${row["Name"] || ''}</h3>
+            </div>
+            
+            <div class="flex items-center text-sm text-gray-600 mb-2">
+              <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+              ${row["Destination"] || 'No destination specified'}
+            </div>
+            
+            <div class="text-xs text-gray-500 mb-3">${row["Purpose"] || 'No purpose specified'}</div>
+            
+            <div class="flex justify-between items-center text-xs text-gray-600 border-t pt-3">
+              <div>
+                <div class="font-medium">Departure</div>
+                <div>${formatCardDate(row["Date of Travel"]) || 'N/A'}</div>
+              </div>
+              
+              <div class="text-center">
+                <div class="font-medium">Duration</div>
+                <div>${duration} day${duration !== 1 ? 's' : ''}</div>
+              </div>
+              
+              <div class="text-right">
+                <div class="font-medium">Return</div>
+                <div>${formatCardDate(row["Date of Return"]) || 'N/A'}</div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        card.appendChild(statusBadge);
+        cardView.appendChild(card);
+      });
+    }
+    
+    // Update statistics
+    function updateStats(data) {
+      // Calculate statistics
+      const now = new Date();
+      const uniquePersonnel = [...new Set(data.map(item => item["Name"]))];
+      const uniqueDestinations = [...new Set(data.map(item => item["Destination"]))];
+      
+      const activeTrips = data.filter(item => {
+        const startDate = new Date(item["Date of Travel"]);
+        const endDate = item["Date of Return"] ? new Date(item["Date of Return"]) : null;
+        return startDate <= now && (!endDate || now <= endDate);
+      });
+      
+      const upcomingTrips = data.filter(item => {
+        const startDate = new Date(item["Date of Travel"]);
+        return startDate > now;
+      });
+      
+      let longestTripDays = 0;
+      data.forEach(item => {
+        const duration = getTripDuration(item["Date of Travel"], item["Date of Return"]);
+        if (duration > longestTripDays) {
+          longestTripDays = duration;
+        }
+      });
+      
+      // Update UI
+      totalTripsEl.textContent = data.length;
+      activeTripsEl.textContent = activeTrips.length;
+      totalPersonnelEl.textContent = uniquePersonnel.length;
+      totalDestinationsEl.textContent = uniqueDestinations.length;
+      longestTripEl.textContent = `${longestTripDays} day${longestTripDays !== 1 ? 's' : ''}`;
+      upcomingTripsEl.textContent = upcomingTrips.length;
+    }
+
+    // Initialize the application
+    init();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962ad839b374ddcc',t:'MTc1MzEwMjQ0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.onkeydown = function(e) {
+    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
+      return false;
+    }
+  };
+</script>
+
+</html>

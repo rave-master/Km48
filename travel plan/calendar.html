@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CDS Travel Info Calendar</title>
+  <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
+
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: #f0f0f0;
+    }
+    #calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .day {
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      padding: 6px;
+      min-height: 120px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #111;
+      position: relative;
+    }
+    .date {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .event {
+      margin-top: 4px;
+      padding: 4px;
+      border-left: 4px solid #2563eb;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4">
+
+  <!-- Search bar -->
+  <div class="flex justify-center mb-6">
+    <input id="google-search-input" type="text" placeholder="Search Google..." class="w-96 px-4 py-2 rounded-l-md border border-gray-300 text-black">
+    <button onclick="searchGoogle()" class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">Search</button>
+  </div>
+
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-4">
+      <button onclick="changeMonth(-1)" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">⬅ Previous</button>
+      <h1 id="calendarTitle" class="text-3xl font-bold text-center text-white drop-shadow-lg">📅 Travel Calendar</h1>
+      <button onclick="changeMonth(1)" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Next ➡</button>
+    </div>
+    <div id="calendar"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="infoModal" class="fixed inset-0 hidden bg-black bg-opacity-50 items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg w-96 text-black">
+      <h2 class="text-xl font-bold mb-2">Travel Details</h2>
+      <div id="modalContent"></div>
+      <button onclick="closeModal()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Close</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    const apiUrl = "https://script.google.com/macros/s/AKfycby6uwSnjv-YT5w9Xky3PU-ivOC6WDf4rqensKTW-llVbikm1-JOBF1gC9OLEjb164M/exec";
+    const calendar = document.getElementById("calendar");
+    const calendarTitle = document.getElementById("calendarTitle");
+
+    const purposeColors = {
+      "Training": "#c084fc",
+      "Assist": "#60a5fa",
+      "Monitoring": "#34d399",
+      "Participate": "#facc15",
+      "Attend": "#f87171",
+      "Workshop": "#fbbf24",
+      "Seminar": "#fdba74",
+      "Inspection": "#fcd34d",
+      "Conduct": "#d1d5db"
+    };
+
+    let currentYear = 2025;
+    let currentMonth = 6; // July (0-based)
+
+    const renderCalendar = () => {
+      calendar.innerHTML = "";
+
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      const monthName = new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' });
+      calendarTitle.textContent = `📅 Travel Calendar – ${monthName} ${currentYear}`;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const cell = document.createElement("div");
+        cell.className = "day";
+        if (dateStr === todayStr) {
+          cell.classList.add("bg-yellow-100");
+        }
+        const dateLabel = document.createElement("div");
+        dateLabel.className = "date";
+        dateLabel.textContent = dateStr;
+        cell.appendChild(dateLabel);
+        cell.setAttribute("data-date", dateStr);
+        calendar.appendChild(cell);
+      }
+
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(entry => {
+            const fromDate = new Date(entry["Date of Travel"]);
+            const toDate = entry["Date of Return"] ? new Date(entry["Date of Return"]) : fromDate;
+            if (isNaN(fromDate)) return;
+
+            const purpose = (entry["Purpose"] || "").trim();
+            const color = purposeColors[purpose] || "#e0f2fe";
+
+            for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
+              if (d.getFullYear() !== currentYear || d.getMonth() !== currentMonth) continue;
+              const dStr = d.toISOString().split("T")[0];
+              const cell = document.querySelector(`.day[data-date="${dStr}"]`);
+              if (cell) {
+                const div = document.createElement("div");
+                div.className = "event";
+                div.style.backgroundColor = color;
+                div.innerHTML = `<strong>${entry["Name"]}</strong><br>${entry["Destination"] || ""}`;
+                div.onclick = () => openModal(entry);
+                cell.appendChild(div);
+              }
+            }
+          });
+        })
+        .catch(err => {
+          console.error("Error loading calendar data:", err);
+        });
+    };
+
+    window.openModal = (entry) => {
+      document.getElementById("infoModal").classList.remove("hidden");
+      document.getElementById("infoModal").classList.add("flex");
+      document.getElementById("modalContent").innerHTML = `
+        <p><strong>Name:</strong> ${entry.Name}</p>
+        <p><strong>Destination:</strong> ${entry["Destination"] || ""}</p>
+        <p><strong>Purpose:</strong> ${entry["Purpose"] || ""}</p>
+        <p><strong>From:</strong> ${entry["Date of Travel"]}</p>
+        <p><strong>To:</strong> ${entry["Date of Return"] || entry["Date of Travel"]}</p>
+        <p><strong>Status/Remarks:</strong> ${entry["Status / Remarks (if there was a change of plan)"] || "N/A"}</p>
+      `;
+    };
+
+    window.closeModal = () => {
+      document.getElementById("infoModal").classList.remove("flex");
+      document.getElementById("infoModal").classList.add("hidden");
+    };
+
+    window.changeMonth = (step) => {
+      currentMonth += step;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar();
+    };
+
+    renderCalendar(); // initial call
+  </script>
+
+  <!-- Background Image & Google Search -->
+  <script>
+    const backgroundImageURL = "https://images.unsplash.com/photo-1506744038136-46273834b3fb";
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url('${backgroundImageURL}')`;
+    });
+
+    function searchGoogle() {
+      const query = document.getElementById('google-search-input').value;
+      if (query) {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+      }
+    }
+  </script>
+</body>
+</html>

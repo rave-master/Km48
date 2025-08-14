@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Personnel Travel Dashboard</title>
+  <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
+
+  <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    }
+    
+    .contact-card {
+      transition: all 0.3s ease;
+    }
+    
+    .contact-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .form-input:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    
+    .map-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 0.75rem;
+      height: 100%;
+      min-height: 300px;
+    }
+    
+    .map-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    
+    .social-icon {
+      transition: all 0.2s ease;
+    }
+    
+    .social-icon:hover {
+      transform: translateY(-3px);
+    }
+    
+    .contact-info-item {
+      transition: all 0.3s ease;
+    }
+    
+    .contact-info-item:hover {
+      background-color: #f0f9ff;
+    }
+    
+    .success-message {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease;
+    }
+    
+    .success-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <div class="bg-blue-600 p-3 rounded-lg mr-4">
+            <i class="fas fa-paper-plane text-white text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Contact Us</h1>
+            <p class="text-gray-500">Get in touch with our travel department</p>
+          </div>
+        </div>
+        <div>
+          <a href="index.html" class="text-blue-600 hover:text-blue-800 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column - Contact Form -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-6 flex items-center">
+            <i class="fas fa-envelope text-blue-600 mr-2"></i> Send Us a Message
+          </h2>
+          
+          <form id="contactForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <input type="text" id="name" name="name" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your full name" required>
+              </div>
+              
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <input type="email" id="email" name="email" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your email address" required>
+              </div>
+            </div>
+            
+            <div>
+              <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+              <select id="subject" name="subject" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white" required>
+                <option value="">Select a subject</option>
+                <option value="Travel Inquiry">Travel Inquiry</option>
+                <option value="Schedule Change">Schedule Change</option>
+                <option value="Accommodation Request">Accommodation Request</option>
+                <option value="Transportation Issue">Transportation Issue</option>
+                <option value="Budget Concern">Budget Concern</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+              <textarea id="message" name="message" rows="5" class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Type your message here..." required></textarea>
+            </div>
+            
+            <div class="flex items-center">
+              <input type="checkbox" id="priority" name="priority" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="priority" class="ml-2 block text-sm text-gray-700">Mark as urgent</label>
+            </div>
+            
+            <div>
+              <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
+                <i class="fas fa-paper-plane mr-2"></i> Send Message
+              </button>
+            </div>
+          </form>
+          
+          <!-- Success Message (Hidden by default) -->
+          <div id="successMessage" class="success-message mt-6 bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 hidden">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium">Message sent successfully!</h3>
+                <p class="mt-2 text-sm">Thank you for contacting us. We'll respond to your inquiry as soon as possible.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column - Contact Information -->
+      <div class="lg:col-span-1">
+        <!-- Contact Info -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-6 flex items-center">
+            <i class="fas fa-info-circle text-blue-600 mr-2"></i> Contact Information
+          </h2>
+          
+          <div class="space-y-4">
+            <div class="contact-info-item flex items-start p-3 rounded-lg">
+              <div class="bg-blue-100 p-3 rounded-full mr-4">
+                <i class="fas fa-map-marker-alt text-blue-600"></i>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-800">Office Address</h3>
+                <p class="text-sm text-gray-600 mt-1">FR26+HXP, Daang Maharlika Hwy, Tagum, Davao del Norte</p>
+              </div>
+            </div>
+            
+            <div class="contact-info-item flex items-start p-3 rounded-lg">
+              <div class="bg-blue-100 p-3 rounded-full mr-4">
+                <i class="fas fa-phone-alt text-blue-600"></i>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-800">Phone Number</h3>
+                <p class="text-sm text-gray-600 mt-1">09092534256<br>09092534256</p>
+              </div>
+            </div>
+            
+            <div class="contact-info-item flex items-start p-3 rounded-lg">
+              <div class="bg-blue-100 p-3 rounded-full mr-4">
+                <i class="fas fa-envelope text-blue-600"></i>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-800">Email Address</h3>
+                <p class="text-sm text-gray-600 mt-1">info@rave-master.de<br>support@rave-master.de</p>
+              </div>
+            </div>
+            
+            <div class="contact-info-item flex items-start p-3 rounded-lg">
+              <div class="bg-blue-100 p-3 rounded-full mr-4">
+                <i class="fas fa-clock text-blue-600"></i>
+              </div>
+              <div>
+                <h3 class="font-medium text-gray-800">Office Hours</h3>
+                <p class="text-sm text-gray-600 mt-1">Monday - Friday: 8:00 AM - 5:00 PM</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Social Media Links -->
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-700 mb-4">Connect With Us</h3>
+            <div class="flex space-x-4">
+              <a href="#" class="social-icon bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition-colors">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" class="social-icon bg-blue-400 text-white p-3 rounded-full hover:bg-blue-500 transition-colors">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#" class="social-icon bg-pink-600 text-white p-3 rounded-full hover:bg-pink-700 transition-colors">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="#" class="social-icon bg-blue-700 text-white p-3 rounded-full hover:bg-blue-800 transition-colors">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Quick Response Card -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl shadow-lg p-6 text-white pulse-animation">
+          <h3 class="font-semibold mb-3">Need Urgent Assistance?</h3>
+          <p class="text-sm text-blue-100 mb-4">Our travel support team is available 24/7 for emergency travel concerns.</p>
+          <div class="flex items-center">
+            <div class="bg-white rounded-full p-3 mr-3">
+              <i class="fas fa-headset text-blue-600"></i>
+            </div>
+            <div>
+              <div class="text-sm font-medium">Emergency Hotline</div>
+              <div class="text-lg font-bold">+63 909-253-4256</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Map Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+      <h2 class="text-xl font-semibold mb-6 flex items-center">
+        <i class="fas fa-map-marked-alt text-blue-600 mr-2"></i> Find Us
+      </h2>
+      
+      <div class="map-container">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3580.086773576325!2d125.80986687448623!3d7.451457711685793!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32f9536eb6abb35f%3A0x777a39c23039abd2!2sPENRO-DENRXI%2C!5e1!3m2!1sen!2sph!4v1753143517258!5m2!1sen!2sph" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>" allowfullscreen="" loading="lazy"></iframe>
+      </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+      <h2 class="text-xl font-semibold mb-6 flex items-center">
+        <i class="fas fa-question-circle text-blue-600 mr-2"></i> Frequently Asked Questions
+      </h2>
+      
+      <div class="space-y-4">
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-4 text-left focus:outline-none" data-target="faq1">
+            <span class="font-medium text-gray-800">How do I request a travel arrangement?</span>
+            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+          </button>
+          <div id="faq1" class="faq-content hidden p-4 bg-gray-50 border-t border-gray-200">
+            <p class="text-sm text-gray-600">To request a travel arrangement, please fill out the contact form with your details and requirements. Alternatively, you can email us directly at travel@company.com with your travel dates, destination, and purpose of travel. Our team will process your request within 24-48 hours.</p>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-4 text-left focus:outline-none" data-target="faq2">
+            <span class="font-medium text-gray-800">What is the process for changing my travel schedule?</span>
+            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+          </button>
+          <div id="faq2" class="faq-content hidden p-4 bg-gray-50 border-t border-gray-200">
+            <p class="text-sm text-gray-600">For schedule changes, please submit your request at least 72 hours before your planned departure. Include your original travel details and the requested changes. Our team will assess the availability and cost implications before confirming your new schedule.</p>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-4 text-left focus:outline-none" data-target="faq3">
+            <span class="font-medium text-gray-800">How are travel expenses reimbursed?</span>
+            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+          </button>
+          <div id="faq3" class="faq-content hidden p-4 bg-gray-50 border-t border-gray-200">
+            <p class="text-sm text-gray-600">To claim reimbursement for travel expenses, submit all original receipts along with the completed expense claim form within 7 days of your return. Make sure to categorize expenses according to the provided guidelines. Reimbursements are typically processed within 14 business days.</p>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <button class="faq-toggle w-full flex justify-between items-center p-4 text-left focus:outline-none" data-target="faq4">
+            <span class="font-medium text-gray-800">What is the approval process for international travel?</span>
+            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+          </button>
+          <div id="faq4" class="faq-content hidden p-4 bg-gray-50 border-t border-gray-200">
+            <p class="text-sm text-gray-600">International travel requires approval from your department head and the executive committee. Requests should be submitted at least 30 days in advance, with a detailed justification for the trip and expected outcomes. The travel department will assist with visa requirements and travel arrangements once approval is granted.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="mt-8 text-center text-gray-500 text-sm">
+      <p>&copy; 2023 Personnel Travel Department. All rights reserved.</p>
+    </div>
+  </div>
+
+  <script>
+    // Form submission handler
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Simulate form submission
+      const submitButton = this.querySelector('button[type="submit"]');
+      const originalText = submitButton.innerHTML;
+      
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Sending...';
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        // Show success message
+        const successMessage = document.getElementById('successMessage');
+        successMessage.classList.remove('hidden');
+        successMessage.classList.add('show');
+        
+        // Reset form
+        this.reset();
+        
+        // Reset button
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalText;
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          successMessage.classList.remove('show');
+          setTimeout(() => {
+            successMessage.classList.add('hidden');
+          }, 500);
+        }, 5000);
+      }, 1500);
+    });
+    
+    // FAQ toggle functionality
+    document.querySelectorAll('.faq-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        const content = document.getElementById(targetId);
+        const icon = button.querySelector('i');
+        
+        // Toggle content visibility
+        if (content.classList.contains('hidden')) {
+          content.classList.remove('hidden');
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          content.classList.add('hidden');
+          icon.style.transform = 'rotate(0)';
+        }
+      });
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'962b1a95b0ad0988',t:'MTc1MzEwNTE2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

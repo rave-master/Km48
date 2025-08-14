@@ -1,0 +1,720 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Monitoring Dashboard - Map & Clusters</title>
+<script>
+    const AGREEMENT_VERSION = '2.1';
+
+    // Check agreement in storage
+    const storedVersion = sessionStorage.getItem('denr_agreement_version');
+    const agreementAccepted = sessionStorage.getItem('denr_agreement_accepted');
+
+    if (storedVersion !== AGREEMENT_VERSION || agreementAccepted !== 'true') {
+        // Redirect to agreement page if not accepted
+        window.location.href = '/index.html'; // Your cover page filename
+    }
+</script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.9.1/jspdf.umd.min.js"></script>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet marker cluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+  h1 { text-align: center; margin-bottom: 10px; }
+  .controls { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .left-controls { display:flex; gap:12px; align-items:center; }
+  .search-box { margin-bottom: 10px; padding: 8px; width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 4px; }
+  .month-nav { text-align: center; margin: 15px 0; font-size: 18px; display:flex; align-items:center; gap:10px; }
+  .month-nav button, .btn { padding: 6px 12px; border: none; background: #007BFF; color: white; border-radius: 4px; cursor: pointer; }
+  .month-nav button:hover, .btn:hover { background: #0056b3; }
+  table { border-collapse: collapse; width: 100%; background: white; margin-top: 10px; }
+  th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: middle; font-size: 14px; }
+  th { background-color: #007BFF; color: white; }
+  tr:nth-child(even) { background-color: #f2f2f2; }
+  img { max-width: 100px; max-height: 80px; cursor: pointer; border-radius: 4px; }
+  tfoot td { font-weight: bold; background: #e9ecef; }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
+  .chart-container { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); height: 300px; display: flex; align-items: center; justify-content: center; }
+  .chart-container canvas { max-width: 100%; max-height: 100%; }
+  .right-align { text-align: right; }
+  .no-data { text-align: center; margin-top: 20px; color: #666; }
+</style>
+<h1 class="dashboard-title">
+  Forest Products Transport<br>
+  Monitoring Dashboard <br>- Km 48 -
+</h1>
+
+<style>
+  .dashboard-title {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Clean & modern font */
+    font-size: 4rem; /* Large enough to stand out */
+    font-weight: 700; /* Bold for emphasis */
+    color: #2E3A59; /* Dark, professional color */
+    line-height: .9; /* Balanced spacing between lines */
+    text-align: center; /* Center for symmetry */
+    margin-bottom: 2rem;
+  }
+
+</style>
+
+<div class="controls">
+  <div class="left-controls">
+    <input type="text" id="searchInput" class="search-box" placeholder="Search records..." onkeyup="filterTable()">
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">← Prev</button>
+      <span id="monthLabel">--</span>
+      <button onclick="changeMonth(1)">Next →</button>
+    </div>
+  </div>
+  <div>
+    <button class="btn" onclick="generatePDF()">Generate PDF Report (current month)</button>
+  </div>
+</div>
+</head>
+
+<body>
+
+
+
+<table id="dataTable">
+  <thead>
+    <tr id="tableHeader"></tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+  <tfoot id="tableFooter"></tfoot>
+</table>
+
+<div id="noDataMessage" class="no-data" style="display:none;">No records for selected month.</div>
+
+<h2 class="board-title">
+  Visualization and Analytics<br>
+  Monitoring Dashboard Km 48 
+</h2>
+
+<style>
+  .board-title {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2E3A59;
+  line-height: 1.2; /* Increased for better readability */
+  text-align: center;
+  margin-bottom: 2rem;
+  margin-top: 5rem; /* Increased top space */
+}
+
+
+</style>
+
+<div class="charts">
+  <div class="chart-container"><canvas id="chartKind"></canvas></div>
+  <div class="chart-container"><canvas id="chartSpecies"></canvas></div>
+  <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
+  <div class="chart-container"><canvas id="chartCenroOrigin"></canvas></div>
+  
+  <style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  .map-container {
+    position: relative; /* allow absolute positioning inside */
+    width: 80vw;
+    height: 400px;
+    margin: 2rem auto; /* center the container horizontally */
+    padding-left: 10%;
+  }
+  .map-title {
+    position: absolute;
+    top: 5px; /* distance from top of the map */
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #df0606;
+    background: rgba(255, 255, 255, 0.8); /* semi-transparent background for readability */
+    padding: 5px 10px;
+    border-radius: 6px;
+    z-index: 1000; /* make sure it’s above the map */
+    text-align: center;
+  }
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<div class="map-container">
+  <h3 class="map-title">Locator Map and Clusters<br>Kilometer 48</h3>
+
+  <div id="map"></div>
+</div>
+
+
+
+<script>
+/* ------------------------------ CONFIG ------------------------------ */
+const DATA_URL = "https://script.google.com/macros/s/AKfycbyYReWmhvUY-ECqMaSEP2oNft1GzfjK01du-hNdUk_fn5KOaymGcebSDF0KREBzMJzvNQ/exec"; // kept as original
+const NOMINATIM_DELAY_MS = 1100; // rate-limit Nominatim requests (1.1s between geocode calls)
+
+/* ------------------------------ STATE ------------------------------ */
+let allData = [];
+let currentMonthIndex = 0;
+let monthList = [];
+let kindChart, speciesChart, timelineChart, cenroOriginChart;
+let map, markerClusterGroup;
+let geocodeCache = {}; // cache geocode results to reduce requests
+
+/* --------------------------- UTIL FUNCTIONS ------------------------- */
+function convertDriveLink(url) {
+  if (!url) return "";
+  if (url.includes("open?id=")) return url.replace("open?id=", "uc?export=view&id=");
+  const match = url.match(/\/d\/([^\/]+)\/?/);
+  if (match) return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  return url;
+}
+
+function formatDate(value) {
+  let d;
+  if (!value && value !== 0) return "";
+  if (!isNaN(value) && value > 1000 && value < 60000) d = new Date((value - 25569) * 86400 * 1000);
+  else d = new Date(value);
+  if (isNaN(d)) return value || "";
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).toUpperCase();
+}
+
+function formatDateTime(value) {
+  let d;
+  if (!value && value !== 0) return "";
+  if (!isNaN(value) && value > 1000 && value < 60000) d = new Date((value - 25569) * 86400 * 1000);
+  else d = new Date(value);
+  if (isNaN(d)) return value || "";
+  return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+}
+
+function formatNumber(value, decimals = 2) {
+  if (isNaN(Number(value))) return value || "";
+  return Number(value).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function isoToDisplayShort(isoDate) {
+  if (!isoDate) return '';
+  const d = new Date(isoDate);
+  if (isNaN(d)) return isoDate;
+  return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
+}
+
+function sortedLabelValueArrays(countObj) {
+  const entries = Object.entries(countObj);
+  const areDates = entries.length && /^\d{4}-\d{2}-\d{2}$/.test(entries[0][0]);
+  if (areDates) {
+    entries.sort((a,b) => new Date(a[0]) - new Date(b[0]));
+    return { labels: entries.map(e => isoToDisplayShort(e[0])), values: entries.map(e => e[1]) };
+  } else {
+    entries.sort((a,b) => b[1] - a[1]);
+    return { labels: entries.map(e => e[0]), values: entries.map(e => e[1]) };
+  }
+}
+
+/* --------------------------- MAP FUNCTIONS ------------------------- */
+function initMap() {
+  // Philippines center by default
+  map = L.map('map', {zoomControl: true}).setView([12.8797, 121.7740], 9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  markerClusterGroup = L.markerClusterGroup();
+  map.addLayer(markerClusterGroup);
+}
+
+function addLocationsToMap(data) {
+  markerClusterGroup.clearLayers();
+  const bounds = [];
+  // We will geocode sequentially to respect Nominatim rate limits.
+  const tasks = [];
+  data.forEach(row => {
+    // Use the capital-L "Location" column as you specified
+    const loc = (row["location"] !== undefined) ? row["location"] : row["Location"];
+    if (!loc) return;
+
+    const permittee = row["permittee"] || row["Permittee"] || "";
+    const species = row["species"] || row["Species"] || "";
+    const popupHtml = `<div style="font-weight:600">${escapeHtml(permittee || "Record")}</div>
+                       <div style="font-size:90%">${escapeHtml(species || "Record")}</div>`;
+
+    // Split and only take first two as lat/lng
+    const parts = String(loc).split(",");
+    if (parts.length >= 2) {
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const m = L.marker([lat, lng]).bindPopup(popupHtml);
+        markerClusterGroup.addLayer(m);
+        bounds.push([lat, lng]);
+      }
+    }
+  });
+
+  // Fit map to bounds if any markers exist
+  if (bounds.length) {
+    try {
+      map.fitBounds(bounds, { padding: [40, 40] });
+    } catch (e) {
+      console.warn(e);
+    }
+  } else {
+    map.setView([12.8797, 121.7740], 9);
+  }
+}
+
+
+/* --------------------------- DOM / RENDER -------------------------- */
+function renderTableAndCharts() {
+  if (!allData.length) return;
+  const headers = Object.keys(allData[0]);
+  const tableHeader = document.getElementById("tableHeader");
+  const tableBody = document.getElementById("tableBody");
+  const tableFooter = document.getElementById("tableFooter");
+  tableHeader.innerHTML = "";
+  tableBody.innerHTML = "";
+  tableFooter.innerHTML = "";
+
+  headers.forEach(h => {
+    const th = document.createElement("th");
+    th.textContent = h.toUpperCase();
+    tableHeader.appendChild(th);
+  });
+
+  const month = monthList[currentMonthIndex] || null;
+  document.getElementById("monthLabel").textContent = month ? formatMonthLabel(month).toUpperCase() : "--";
+
+  const dateKey = headers.find(k => k.toLowerCase().includes("date")) || headers[0];
+  const cuKey = headers.find(k => k.toLowerCase().includes("cu.m"));
+  const bdKey = headers.find(k => k.toLowerCase().includes("bd.ft"));
+  const piecesKey = headers.find(k => k.toLowerCase().includes("pieces"));
+  const kindKey = headers.find(k => k.toLowerCase().includes("kind"));
+  const speciesKey = headers.find(k => k.toLowerCase().includes("species"));
+  const cenroKey = headers.find(k => k.toLowerCase().includes("cenro-origin") || k.toLowerCase().includes("cenro_origin") || k.toLowerCase().includes("cenro origin"));
+
+  let totalCu = 0, totalBd = 0, totalPieces = 0;
+  let kindCounts = {}, speciesCounts = {}, dailyCounts = {}, cenroOriginCounts = {};
+
+  const filteredData = allData.filter(row => {
+    const d = new Date(row[dateKey]);
+    if (isNaN(d)) return false;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` === month;
+  });
+
+  const noDataMessage = document.getElementById("noDataMessage");
+  if (!filteredData.length) {
+    noDataMessage.style.display = "block";
+  } else {
+    noDataMessage.style.display = "none";
+  }
+
+  filteredData.forEach(row => {
+    const tr = document.createElement("tr");
+    headers.forEach(h => {
+      const key = h.trim().toLowerCase();
+      const td = document.createElement("td");
+      if (key.includes("photo")) {
+        const url = row[h];
+        if (url) {
+          const img = document.createElement("img");
+          img.src = convertDriveLink(url);
+          img.loading = "lazy";
+          img.onclick = () => window.open(url, "_blank");
+          td.appendChild(img);
+        }
+      } else if (key.includes("timestamp")) {
+        td.textContent = formatDateTime(row[h]);
+      } else if (key.includes("date issued") || key.includes("expiry date")) {
+        td.textContent = formatDate(row[h]);
+      } else if (key === "date" || key.includes("date/ time") || key.includes("date/") || key.includes("date ")) {
+        td.textContent = formatDate(row[h]);
+      } else {
+        td.textContent = row[h] || "";
+      }
+      tr.appendChild(td);
+    });
+    tableBody.appendChild(tr);
+
+    totalCu += parseFloat(row[cuKey]) || 0;
+    totalBd += parseFloat(row[bdKey]) || 0;
+    totalPieces += parseInt(row[piecesKey]) || 0;
+
+    if (kindKey) {
+      const kVal = (row[kindKey] || "UNKNOWN").toString();
+      kindCounts[kVal] = (kindCounts[kVal] || 0) + 1;
+    }
+    if (speciesKey) {
+      const sVal = (row[speciesKey] || "UNKNOWN").toString();
+      speciesCounts[sVal] = (speciesCounts[sVal] || 0) + 1;
+    }
+    if (cenroKey) {
+      const cVal = (row[cenroKey] || "UNKNOWN").toString();
+      cenroOriginCounts[cVal] = (cenroOriginCounts[cVal] || 0) + 1;
+    }
+
+    const d = new Date(row[dateKey]);
+    if (!isNaN(d)) {
+      const dayIso = d.toISOString().slice(0,10);
+      dailyCounts[dayIso] = (dailyCounts[dayIso] || 0) + 1;
+    }
+  });
+
+  const footerRow = document.createElement("tr");
+  headers.forEach((h, idx) => {
+    const key = h.toLowerCase();
+    const td = document.createElement("td");
+    if (key.includes("cu.m")) {
+      td.textContent = formatNumber(totalCu) + " CU.M.";
+      td.classList.add('right-align');
+    } else if (key.includes("bd.ft")) {
+      td.textContent = formatNumber(totalBd) + " BD.FT";
+      td.classList.add('right-align');
+    } else if (key.includes("pieces")) {
+      td.textContent = formatNumber(totalPieces, 0) + " PIECES";
+      td.classList.add('right-align');
+    } else if (idx === 0) {
+      td.textContent = "TOTAL:";
+    } else {
+      td.textContent = "";
+    }
+    footerRow.appendChild(td);
+  });
+  tableFooter.appendChild(footerRow);
+
+  renderCharts(kindCounts, speciesCounts, dailyCounts, cenroOriginCounts);
+
+  // Update map using the capital-L "Location" column safely
+  addLocationsToMap(filteredData);
+}
+
+/* --------------------------- CHARTS --------------------------- */
+function renderCharts(kindCounts, speciesCounts, dailyCounts, cenroOriginCounts) {
+  if (kindChart) kindChart.destroy();
+  if (speciesChart) speciesChart.destroy();
+  if (timelineChart) timelineChart.destroy();
+  if (cenroOriginChart) cenroOriginChart.destroy();
+
+  const kindData = sortedLabelValueArrays(kindCounts);
+
+kindChart = new Chart(document.getElementById("chartKind"), {
+  type: "bar",
+  data: {
+    labels: kindData.labels,
+    datasets: [{
+      label: "Kind", // This will show in the legend
+      data: kindData.values,
+      backgroundColor: "#007BFF"
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true, // Show dataset label in legend
+        position: 'top'
+      },
+      title: {
+        display: true, // Show chart title
+        text: 'Products Kind Distribution',
+        font: {
+          size: 18
+        }
+      }
+    }
+  }
+});
+
+
+  const speciesData = sortedLabelValueArrays(speciesCounts);
+  speciesChart = new Chart(document.getElementById("chartSpecies"), {
+    type: "pie",
+    data: { labels: speciesData.labels, datasets: [{ label: "Species", data: speciesData.values,
+     backgroundColor: ["#28a745","#ffc107","#17a2b8","#dc3545","#6f42c1","#20c997","#fd7e14","#6610f2"] }] },
+    
+     options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true, // Show dataset label in legend
+        position: 'top'
+      },
+      title: {
+        display: true, // Show chart title
+        text: 'Species Distribution',
+        font: {
+          size: 18
+        }
+      }
+    }
+  }
+  });
+
+  const timelineData = sortedLabelValueArrays(dailyCounts);
+  timelineChart = new Chart(document.getElementById("chartTimeline"), {
+    type: "line",
+    data: { labels: timelineData.labels, datasets: [{ label: "Daily Trend", data: timelineData.values, fill: false,
+     borderColor: "#17a2b8", tension: 0.2 }] },
+
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true, // Show dataset label in legend
+        position: 'top'
+      },
+      title: {
+        display: true, // Show chart title
+        text: 'Transport Trend Over Time',
+        font: {
+          size: 18
+        }
+      }
+    }
+  }
+  });
+
+  const cenroData = sortedLabelValueArrays(cenroOriginCounts);
+  cenroOriginChart = new Chart(document.getElementById("chartCenroOrigin"), {
+    type: "bar",
+    data: { labels: cenroData.labels, datasets: [{ label: "CENRO-ORIGIN Count", data: cenroData.values, 
+    backgroundColor: ["#28a745","#ffc107","#17a2b8","#dc3545","#6f42c1","#20c997","#fd7e14","#6610f2"] }] },
+    
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true, // Show dataset label in legend
+        position: 'top'
+      },
+      title: {
+        display: true, // Show chart title
+        text: 'Most Common CENRO Origin',
+        font: {
+          size: 18
+        }
+      }
+    }
+  }
+  });
+}
+
+/* --------------------------- MONTH NAV / FILTER --------------------------- */
+function changeMonth(step) {
+  if (!monthList.length) return;
+  currentMonthIndex += step;
+  if (currentMonthIndex < 0) currentMonthIndex = monthList.length - 1;
+  if (currentMonthIndex >= monthList.length) currentMonthIndex = 0;
+  renderTableAndCharts();
+}
+function formatMonthLabel(monthStr) {
+  if (!monthStr) return "--";
+  const [year, month] = monthStr.split("-");
+  return `${new Date(year, month - 1).toLocaleString('default', { month: 'long' })} ${year}`;
+}
+
+function filterTable() {
+  const searchValue = document.getElementById("searchInput").value.toLowerCase();
+  const rows = document.querySelectorAll("#dataTable tbody tr");
+  rows.forEach(row => {
+    const cells = Array.from(row.getElementsByTagName("td"));
+    row.style.display = cells.some(cell => cell.textContent.toLowerCase().includes(searchValue)) ? "" : "none";
+  });
+}
+
+
+/* --------------------------- PDF HELPERS --------------------------- */
+// convert external image URL to dataURL for jsPDF embedding
+async function urlToDataURL(url) {
+  // attempt fetch -> blob -> canvas -> dataURL
+  const res = await fetch(url, { mode: 'cors' });
+  const blob = await res.blob();
+  return await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      try {
+        const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+        resolve(dataURL);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    img.onerror = (e) => reject(e);
+    img.src = url;
+    // fallback: if not loaded in 8s, reject
+    setTimeout(() => reject(new Error("Image load timeout")), 8000);
+  });
+}
+
+/* --------------------------- PDF GENERATION --------------------------- */
+async function generatePDF() {
+  if (!allData.length) { alert("No data loaded."); return; }
+
+  const headers = Object.keys(allData[0]);
+  const dateKey = headers.find(k => k.toLowerCase().includes("date")) || headers[0];
+  const month = monthList[currentMonthIndex];
+  const filteredData = allData.filter(row => {
+    const d = new Date(row[dateKey]);
+    if (isNaN(d)) return false;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` === month;
+  });
+
+  if (!filteredData.length) { alert("No records for the selected month."); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'in', format: 'legal' });
+
+  doc.setFontSize(14);
+  doc.text(`Forest Products Transport Report - ${formatMonthLabel(month).toUpperCase()}`, 1.5, 0.6);
+  doc.setFontSize(10);
+  doc.text(`Generated: ${new Date().toLocaleString('en-US')}`, 0.5, 0.9);
+  doc.text(`Records included: ${filteredData.length}`, 0.5, 1.2);
+
+  let pageIndex = 0;
+  for (const record of filteredData) {
+    if (pageIndex > 0 || doc.getNumberOfPages() > 1) doc.addPage();
+    doc.setFontSize(11);
+    doc.text(`Record #${pageIndex + 1}`, 0.5, 0.6);
+    doc.setFontSize(9);
+
+    let y = 1.5;
+    const leftX = 0.5;
+    const rightX = 5.0;
+
+    for (const k of headers) {
+      const key = k.trim().toLowerCase();
+      if (key.includes("photo")) continue;
+
+      let displayValue = record[k] || "";
+      if (key.includes("timestamp")) displayValue = formatDateTime(displayValue);
+      else if (key.includes("date issued") || key.includes("expiry date")) displayValue = formatDate(displayValue);
+      else if (key === "date" || key.includes("date/ time")) displayValue = formatDate(displayValue);
+
+      if (y > 10.5) {
+        doc.addPage();
+        y = 0.6;
+      }
+      doc.text(`${k.toUpperCase()}: ${String(displayValue)}`, leftX, y);
+      y += 0.25;
+    }
+
+    const photoKeys = Object.keys(record).filter(k => k.toLowerCase().includes("photo") && record[k]);
+    if (photoKeys.length) {
+      let photoY = 0.6;
+      for (let i = 0; i < photoKeys.length && i < 2; i++) {
+        const originalUrl = record[photoKeys[i]];
+        const imageUrl = convertDriveLink(originalUrl);
+        try {
+          const dataUrl = await urlToDataURL(imageUrl);
+          doc.addImage(dataUrl, 'JPEG', rightX, photoY, 3.0, 5.0);
+        } catch (err) {
+          console.warn("Image embed failed for", imageUrl, err);
+          doc.setFontSize(9);
+          doc.text(`(Image failed to load: ${imageUrl})`, rightX, photoY + 0.2);
+        }
+        photoY += 5.2;
+      }
+    } else {
+      doc.setFontSize(9);
+      doc.text("(No photo available)", rightX, 1.0);
+    }
+
+    pageIndex++;
+  }
+
+  doc.save(`Report_${formatMonthLabel(month).replace(/\s+/g,'_')}.pdf`);
+}
+
+
+
+/* --------------------------- DATA LOADING --------------------------- */
+fetch(DATA_URL)
+  .then(res => res.json())
+  .then(data => {
+    if (!Array.isArray(data) || data.length === 0) {
+      alert("No data returned from data source.");
+      return;
+    }
+    allData = data.map(row => {
+      const obj = {};
+      Object.keys(row).forEach(k => obj[k.trim()] = row[k]);
+      return obj;
+    });
+    const sampleKeys = Object.keys(allData[0] || {});
+    const dateKeyCandidate = sampleKeys.find(k => k.toLowerCase().includes("date")) || sampleKeys[0];
+    monthList = [...new Set(allData.map(r => {
+      const d = new Date(r[dateKeyCandidate]);
+      if (isNaN(d)) return null;
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    }).filter(Boolean))].sort();
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    currentMonthIndex = monthList.indexOf(currentMonthStr);
+    if (currentMonthIndex === -1) currentMonthIndex = monthList.length - 1;
+    if (currentMonthIndex < 0) currentMonthIndex = 0;
+    renderTableAndCharts();
+  })
+  .catch(err => {
+    console.error("Failed to load data", err);
+    alert("Failed to load data. See console for details.");
+  });
+
+/* --------------------------- INIT --------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  initMap();
+});
+
+/* --------------------------- UTIL: small helpers --------------------------- */
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, function (m) {
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+  });
+}
+
+/* ------------ Prevent right-click / devtools (keeps as original) ------------ */
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.onkeydown = function(e) {
+  if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
+    return false;
+  }
+};
+
+</script>
+
+<script>
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.onkeydown = function(e) {
+    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
+      return false;
+    }
+  };
+</script>
+</body>
+</html>
