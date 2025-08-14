@@ -34,16 +34,37 @@
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+  body { font-family: Arial, sans-serif;
+  padding: 20px;
+  
+  /* Background image */
+  background-image: url('/de.jpg');
+  
+  /* Make it cover the whole screen */
+  background-size: cover;
+  
+  /* Keep it centered */
+  background-position: center;
+  
+  /* Prevent tiling */
+  background-repeat: no-repeat;
+  
+  /* Optional: fix it in place when scrolling */
+  background-attachment: fixed;
+} 
   h1 { text-align: center; margin-bottom: 10px; }
   .controls { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
   .left-controls { display:flex; gap:12px; align-items:center; }
   .search-box { padding: 8px; width: 250px; border: 1px solid #ccc; border-radius: 4px; }
   .month-nav { display:flex; align-items:center; gap:10px; }
-  button.btn, .nav-btn { padding: 6px 12px; border: none; background: #c20d0d; color: white; border-radius: 4px; cursor: pointer; }
+  button.btn, .nav-btn { padding: 6px 12px; border: none; background: #c20d0d; color: white; border-radius: 4px; cursor: pointer;
+  /* Shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); }
   button.btn:hover, .nav-btn:hover { background: #c20d0d; }
   .link-buttons { margin-top: 15px; display:flex; gap:10px; }
-  table { border-collapse: collapse; width: 100%; background: white; margin-top: 10px; }
+  table { border-collapse: collapse; width: 100%; background: white; margin-top: 10px;
+  /* Shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); }
   th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: middle; font-size: 14px; }
   th { background-color: #c20d0d; color: white; }
   tr:nth-child(even) { background-color: #f2f2f2; }
@@ -51,7 +72,11 @@
   tfoot td { font-weight: bold; background: #e9ecef; }
   .right-align { text-align: right; }
   .no-data { text-align: center; margin-top: 20px; color: #666; }
-  #map { height: 600px; width: 1000px; margin-top: 20px; border: 2px solid #ccc; border-radius: 6px; }
+  #map { height: 600px; width: 1000px; margin-top: 20px; border: 2px solid #ccc; border-radius: 6px;
+   /* Shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  
+  }
 </style>
 </head>
 <body>
