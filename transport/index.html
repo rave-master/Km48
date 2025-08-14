@@ -56,7 +56,33 @@
 </head>
 <body>
 
-<h1>Forest Products Transport<br>Monitoring Dashboard<br>-Km.48-</h1>
+  <!-- Dashboard Title -->
+<h1 class="dashboard-title">
+  Forest Products Transport<br>
+  Monitoring Dashboard<br>
+  <span class="checkpoint">Km. 48 Checkpoint</span>
+</h1>
+
+<style>
+.dashboard-title {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1;
+  color: #2d3e50;
+  margin-bottom: 20px;
+}
+.dashboard-title .checkpoint {
+  font-size: 2rem;
+  font-weight: 400;
+  color: #5a7684;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+</style>
+
 
 <div class="controls">
   <div class="left-controls">
@@ -77,6 +103,32 @@
   <a href="/analytics/" class="nav-btn">Analytics</a>
   <a href="#" class="nav-btn">Forms</a>
 </div>
+
+<style>
+.link-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.nav-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #2d89ef;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.nav-btn:hover {
+  background-color: #1e5bb8;
+  transform: scale(1.08);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
 
 <table id="dataTable">
   <thead>
