@@ -6,6 +6,50 @@
 <title>Monitoring Dashboard</title>
 <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
 
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyD2xLVGe79OxzEHC2uXNMcbCtWugGn2M_k",
+    authDomain: "simple-logon.firebaseapp.com",
+    projectId: "simple-logon",
+    storageBucket: "simple-logon.firebasestorage.app",
+    messagingSenderId: "698709393716",
+    appId: "1:698709393716:web:5d93c85f962769d8a42561",
+    measurementId: "G-H25FHTK2S5"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Protect the page
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // If not logged in, redirect to login page
+      window.location.href = "/index.html";
+    } else {
+      console.log("User is signed in:", user.displayName, user.email);
+      // Example: show user name on homepage
+      document.getElementById("user-info").textContent =
+        `Welcome, ${user.displayName || user.email}`;
+    }
+  });
+
+  // Optional: Logout button
+  function logout() {
+    signOut(auth).then(() => {
+      window.location.href = "/index.html";
+    });
+  }
+  window.logout = logout;
+</script>
+
+
+
 
 <script>
     const AGREEMENT_VERSION = '2.1';
@@ -18,11 +62,15 @@
         // Redirect to agreement page if not accepted
         window.location.href = '/index.html'; // Your cover page filename
     }
+
+    
 </script>
 
 
 <!-- jsPDF -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
 <!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -80,6 +128,15 @@
 </style>
 </head>
 <body>
+
+<!-- Top bar -->
+<div class="flex justify-end p-4">
+  <button 
+    onclick="logout()" 
+    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition">
+    Logout
+  </button>
+</div>
 
   <!-- Dashboard Title -->
 <h1 class="dashboard-title">
@@ -328,20 +385,60 @@ function filterTable() {
 
 function generatePDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("Forest Products Transport Monitoring Report", 10, 10);
+
+  // Create document: Landscape, Legal size
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "legal"
+  });
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("Forest Products Transport Monitoring Report", 200, 15, { align: "center" });
+
+  doc.setFontSize(10);
+  doc.text("Date Generated: " + new Date().toLocaleString(), 20, 25);
+
+  // Extract HTML table
   const table = document.getElementById("dataTable");
-  let y = 20;
-  for (let row of table.rows) {
-    let rowText = Array.from(row.cells).map(cell => cell.innerText).join(" | ");
-    doc.text(rowText, 10, y);
-    y += 7;
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
+
+  // Use autoTable for clean formatting
+  doc.autoTable({
+    html: table,
+    startY: 35,
+    theme: "grid", // 'striped', 'grid', or 'plain'
+    headStyles: {
+      fillColor: [22, 160, 133], // Teal header
+      textColor: 255,
+      halign: "center",
+      valign: "middle"
+    },
+    bodyStyles: {
+      fontSize: 9,
+      halign: "center",
+      valign: "middle"
+    },
+    styles: {
+      overflow: "linebreak",
+      cellPadding: 3
+    },
+    didDrawPage: function (data) {
+      // Footer
+      let pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(9);
+      doc.text(
+        "Page " + pageCount,
+        doc.internal.pageSize.getWidth() - 20,
+        doc.internal.pageSize.getHeight() - 10
+      );
     }
-  }
-  doc.save("report.pdf");
+  });
+
+  // Save PDF
+  doc.save("Forest_Products_Report.pdf");
+
 }
 
 fetch(DATA_URL)
