@@ -241,13 +241,49 @@ function convertDriveLink(url) {
   return url;
 }
 function formatDate(value) {
+  if (!value) return "";
+
   let d;
-  if (!value && value !== 0) return "";
-  if (!isNaN(value) && value > 1000 && value < 60000) d = new Date((value - 25569) * 86400 * 1000);
-  else d = new Date(value);
-  if (isNaN(d)) return value || "";
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).toUpperCase();
+
+  // Handle Excel serial numbers
+  if (!isNaN(value) && value > 1000 && value < 60000) {
+    d = new Date((value - 25569) * 86400 * 1000);
+  } else {
+    d = new Date(value); // Parse as UTC if it has 'Z'
+  }
+
+  if (isNaN(d.getTime())) return value || "";
+
+  // Check if time portion is exactly midnight
+  const isMidnight =
+    d.getHours() === 0 &&
+    d.getMinutes() === 0 &&
+    d.getSeconds() === 0;
+
+  // Date-only if midnight, otherwise date + time
+  const options = isMidnight
+    ? {
+        timeZone: "Asia/Singapore", // works for Philippines too
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }
+    : {
+        timeZone: "Asia/Singapore",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      };
+
+  return d.toLocaleString("en-US", options).toUpperCase();
 }
+
+
+
 function formatNumber(value, decimals = 2) {
   if (isNaN(Number(value))) return value || "";
   return Number(value).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -331,8 +367,13 @@ function renderTable() {
           img.onclick = () => window.open(url, "_blank");
           td.appendChild(img);
         }
-      } else if (key.includes("date")) {
-        td.textContent = formatDate(row[h]);
+      } else if (key.includes("timestamp")) {
+    // Show original UTC + converted local time
+    const localTime = formatDate(row[h]);
+    td.innerHTML = `${row[h]}<br><small style="color:gray;">${localTime}</small>`;
+} else if (key.includes("date")) {
+    td.textContent = formatDate(row[h]);
+
       } else {
         td.textContent = row[h] || "";
       }
