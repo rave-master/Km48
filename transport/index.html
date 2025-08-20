@@ -61,16 +61,9 @@
     if (storedVersion !== AGREEMENT_VERSION || agreementAccepted !== 'true') {
         // Redirect to agreement page if not accepted
         window.location.href = '/index.html'; // Your cover page filename
-    }
-
-    
+    } 
 </script>
 
-
-<!-- jsPDF -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
 <!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -138,6 +131,53 @@
   </button>
 </div>
 
+<!-- Philippine Date & Time -->
+<div class="flex flex-col items-end p-1 text-lg font-medium text-blue-600 leading-tight" style="line-height: 1.2;">
+  <p id="ph-date" class="mb-0.5"></p>
+  <p id="ph-time" class="mb-0"></p>
+  <div id="user-info" class="flex justify-end items-center gap-2 p-1 text-lg font-medium text-gray-700 mt-2">
+  <!-- Profile photo -->
+  <img src="https://via.placeholder.com/40" alt="Profile Photo" class="w-10 h-10 rounded-full border border-gray-300">
+
+  <!-- User name or info -->
+  <span id="user-name">John Doe</span>
+</div>
+</div>
+
+
+<script>
+function updatePhilippineDateTime() {
+  const now = new Date();
+
+  // Format date: "Wednesday, August 20, 2025"
+  const dateOptions = {
+    timeZone: "Asia/Manila",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  };
+  const formattedDate = new Intl.DateTimeFormat("en-US", dateOptions).format(now);
+
+  // Format time: "11:41:15 AM"
+  const timeOptions = {
+    timeZone: "Asia/Manila",
+    hour12: true,
+    hour: "numeric",  // no leading zero
+    minute: "2-digit",
+    second: "2-digit"
+  };
+  const formattedTime = new Intl.DateTimeFormat("en-US", timeOptions).format(now);
+
+  document.getElementById("ph-date").textContent = formattedDate;
+  document.getElementById("ph-time").textContent = `Philippine Standard Time: ${formattedTime}`;
+}
+
+// Update every second
+setInterval(updatePhilippineDateTime, 1000);
+updatePhilippineDateTime();
+</script>
+
   <!-- Dashboard Title -->
 <h1 class="dashboard-title">
   Forest Products Transport<br>
@@ -146,6 +186,7 @@
 </h1>
 
 <style>
+  
 .dashboard-title {
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 3rem;
@@ -175,10 +216,7 @@
       <button class="btn" onclick="changeMonth(1)">Next →</button>
     </div>
   </div>
-  <div>
-    <button class="btn" onclick="generatePDF()">Generate PDF Report</button>
-  </div>
-</div>
+
 
 <!-- Extra navigation buttons -->
 <div class="link-buttons">
@@ -424,63 +462,6 @@ function filterTable() {
   });
 }
 
-function generatePDF() {
-  const { jsPDF } = window.jspdf;
-
-  // Create document: Landscape, Legal size
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "legal"
-  });
-
-  // Title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("Forest Products Transport Monitoring Report", 200, 15, { align: "center" });
-
-  doc.setFontSize(10);
-  doc.text("Date Generated: " + new Date().toLocaleString(), 20, 25);
-
-  // Extract HTML table
-  const table = document.getElementById("dataTable");
-
-  // Use autoTable for clean formatting
-  doc.autoTable({
-    html: table,
-    startY: 35,
-    theme: "grid", // 'striped', 'grid', or 'plain'
-    headStyles: {
-      fillColor: [22, 160, 133], // Teal header
-      textColor: 255,
-      halign: "center",
-      valign: "middle"
-    },
-    bodyStyles: {
-      fontSize: 9,
-      halign: "center",
-      valign: "middle"
-    },
-    styles: {
-      overflow: "linebreak",
-      cellPadding: 3
-    },
-    didDrawPage: function (data) {
-      // Footer
-      let pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(9);
-      doc.text(
-        "Page " + pageCount,
-        doc.internal.pageSize.getWidth() - 20,
-        doc.internal.pageSize.getHeight() - 10
-      );
-    }
-  });
-
-  // Save PDF
-  doc.save("Forest_Products_Report.pdf");
-
-}
 
 fetch(DATA_URL)
   .then(res => res.json())
