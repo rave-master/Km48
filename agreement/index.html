@@ -53,7 +53,11 @@
 
 
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+</head>
+
+
+<script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -76,13 +80,15 @@
 }
 
         .scroll-shadow { box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
+
     </style>
-</head>
+
+<!--background image-->
+
+<body class="bg-[url('/de.jpg')] bg-cover bg-center bg-fixed">
 
 
-
-
-<body class="bg-gray-50">
+    
     <!-- Header -->
      <!-- Top bar -->
 <div class="flex justify-end p-4">
@@ -175,7 +181,7 @@ updatePhilippineDateTime();
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto px-6 py-8">
         <!-- Introduction -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+        <div class="bg-white rounded-lg shadow-2xl p-8 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to the Forest Products Transport Monitoring System</h2>
             <p class="text-gray-600 leading-relaxed mb-4">
                 This dashboard provides real-time monitoring and tracking of forest products transportation across Davao del Norte, 
@@ -229,7 +235,7 @@ updatePhilippineDateTime();
 
 
         <!-- Legal Basis -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+        <div class="bg-white rounded-lg shadow-2xl p-8 mb-6">
             <h3 class="text-xl font-bold text-gray-800 mb-4">Legal Basis</h3>
             <div class="space-y-3 text-gray-600">
                 <div class="flex items-start space-x-3">
@@ -256,7 +262,7 @@ updatePhilippineDateTime();
         </div>
 
         <!-- Sustainable Development Goals -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+        <div class="bg-white rounded-lg shadow-2xl p-8 mb-6">
             <h3 class="text-xl font-bold text-gray-800 mb-4">Relevant Sustainable Development Goals (SDGs)</h3>
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
@@ -294,7 +300,7 @@ updatePhilippineDateTime();
         </div>
 
         <!-- Terms and Conditions -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+        <div class="bg-white rounded-lg shadow-2xl p-8 mb-6">
             <h3 class="text-xl font-bold text-gray-800 mb-4">Terms and Conditions of Use</h3>
             <div class="max-h-96 overflow-y-auto scroll-shadow border rounded-lg p-4 bg-gray-50">
                 <div class="space-y-4 text-sm text-gray-700">
@@ -352,7 +358,7 @@ updatePhilippineDateTime();
         </div>
 
         <!-- Agreement Section -->
-        <div class="bg-white rounded-lg shadow-lg p-8">
+        <div class="bg-white rounded-lg shadow-2xl p-8">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold text-gray-800">Agreement Required</h3>
                 <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Version 2.1 - July 2025</span>

@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forest Products Transport Dashboard</title>
-    <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // Your Firebase config
@@ -28,8 +15,6 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-    
-
 
   // Protect the page
   onAuthStateChanged(auth, (user) => {
@@ -51,279 +36,22 @@
     });
   }
   window.logout = logout;
-</script>
 
 
 
-    <style> 
-        body {
-            font-family: Arial, sans-serif;
-  padding: 20px;
-  
-  /* Background image */
-  background-image: url('/de.jpg');
-  
-  /* Make it cover the whole screen */
-  background-size: cover;
-  
-  /* Keep it centered */
-  background-position: center;
-  
-  /* Prevent tiling */
-  background-repeat: no-repeat;
-  
-  /* Optional: fix it in place when scrolling */
-  background-attachment: fixed;
-        }
-        
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            /* Shadow effect */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            color: #c20d0d;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            /* Shadow effect */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .chart-container {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            /* Shadow effect */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-        
-        .chart-title {
-            font-size: 1.3rem;
-            color: #c20d0d;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .filters-section {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            /* Shadow effect */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            margin-bottom: 30px;
-        }
-        
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .filter-group label {
-            color: #c20d0d;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .filter-group select, .filter-group input {
-            padding: 12px;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .filter-group select:focus, .filter-group input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        .data-table {
-            background: white;
-            border-radius: 15px;
-            /* Shadow effect */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 1);
-            overflow: hidden;
-        }
-        
-        .table-header {
-            background: #34495e;
-            color: white;
-            padding: 20px;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-        
-        .table-container {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #c20d0d;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #7f8c8d;
-            font-size: 1.2rem;
-        }
-        
-        .error {
-            background: #e74c3c;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .refresh-btn {
-            background: #c20d0d;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s ease;
-        }
-        
-        .refresh-btn:hover {
-            background: #2980b9;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .filters-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
 
+    const AGREEMENT_VERSION = '2.1';
 
-<body>
+    // Check agreement in storage
+    const storedVersion = sessionStorage.getItem('denr_agreement_version');
+    const agreementAccepted = sessionStorage.getItem('denr_agreement_accepted');
 
-    <!-- Top bar -->
-<div class="flex justify-end p-4">
-  <button 
-    onclick="logout()" 
-    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition">
-    Logout
-  </button>
-</div>
+    if (storedVersion !== AGREEMENT_VERSION || agreementAccepted !== 'true') {
+        // Redirect to agreement page if not accepted
+        window.location.href = '/index.html'; // Your cover page filename
+    }
 
-
-<!-- Philippine Date & Time -->
-<div class="flex flex-col items-end p-1 text-lg font-medium text-blue-600 leading-tight" style="line-height: 1.2;">
-  <p id="ph-date" class="mb-0.5"></p>
-  <p id="ph-time" class="mb-0"></p>
-  <div id="user-info" class="flex justify-end items-center gap-2 p-1 text-lg font-medium text-gray-700 mt-2">
-  <!-- Profile photo -->
-  <img src="https://via.placeholder.com/40" alt="Profile Photo" class="w-10 h-10 rounded-full border border-gray-300">
-
-  <!-- User name or info -->
-  <span id="user-name">John Doe</span>
-</div>
-</div>
-
-<script>
-function updatePhilippineDateTime() {
+    function updatePhilippineDateTime() {
   const now = new Date();
 
   // Format date: "Wednesday, August 20, 2025"
@@ -349,136 +77,11 @@ function updatePhilippineDateTime() {
   document.getElementById("ph-date").textContent = formattedDate;
   document.getElementById("ph-time").textContent = `Philippine Standard Time: ${formattedTime}`;
 }
-
 // Update every second
 setInterval(updatePhilippineDateTime, 1000);
 updatePhilippineDateTime();
-</script>
 
-
-
-
-    <div class="dashboard-container">
-        <div class="header">
-            <h1>KM.48 Forest Products Transport Monitoring Dashboard</h1>
-            <p>Monthly analytics and monitoring of forest product permits and transportation</p>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px;">
-                <button class="refresh-btn" onclick="previousMonth()">← Previous Month</button>
-                <div style="background: #ecf0f1; padding: 10px 20px; border-radius: 8px; font-weight: bold; color: #2c3e50;">
-                    <span id="currentMonth">Loading...</span>
-                </div>
-                <button class="refresh-btn" onclick="nextMonth()">Next Month →</button>
-                <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
-                <button class="refresh-btn" onclick="generatePDFReport()" style="background: #e74c3c;">📄 Generate PDF Report</button>
-            </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalPermits">-</div>
-                <div class="stat-label">Total Permits</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalVolume">-</div>
-                <div class="stat-label">Total Volume (CU.M)</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalBdFt">-</div>
-                <div class="stat-label">Total BD.FT</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalPieces">-</div>
-                <div class="stat-label">Total Pieces</div>
-            </div>
-        </div>
-
-        <div class="filters-section">
-            <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Filters & Controls</h3>
-            <div class="filters-grid">
-                <div class="filter-group">
-                    <label>Date Range From:</label>
-                    <input type="date" id="dateFrom" onchange="applyFilters()">
-                </div>
-                <div class="filter-group">
-                    <label>Date Range To:</label>
-                    <input type="date" id="dateTo" onchange="applyFilters()">
-                </div>
-                <div class="filter-group">
-                    <label>Destination -Address/Location:</label>
-                    <select id="speciesFilter" onchange="applyFilters()">
-                        <option value="">All Destinations</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>CENRO Origin:</label>
-                    <select id="cenroFilter" onchange="applyFilters()">
-                        <option value="">All CENRO</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="charts-grid">
-            <div class="chart-container">
-                <div class="chart-title">📈 Permits by Species</div>
-                <canvas id="speciesChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">🌳 Kind of Forest Products</div>
-                <canvas id="monthlyChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">📊 Daily Trend</div>
-                <canvas id="dailyChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">🏢 CENRO Distribution</div>
-                <canvas id="cenroChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">📍 Destination Distribution</div>
-                <canvas id="destinationChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">📄 Permit Types</div>
-                <canvas id="permitTypeChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <div class="chart-title">👥 Consignee Volume Distribution (CU.M)</div>
-                <canvas id="consigneeChart"></canvas>
-            </div>
-        </div>
-
-        <div class="data-table">
-            <div class="table-header">
-                📋 Recent Permits Data
-            </div>
-            <div class="table-container">
-                <div id="loadingMessage" class="loading">Loading data...</div>
-                <div id="errorMessage" class="error" style="display: none;"></div>
-                <table id="dataTable" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Permittee</th>
-                            <th>Species</th>
-                            <th>Pieces</th>
-                            <th>Volume (CU.M)</th>
-                            <th>BD.FT</th>
-                            <th>Transport Type</th>
-                            <th>Plate No.</th>
-                            <th>CENRO</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let allData = [];
+let allData = [];
         let filteredData = [];
         let charts = {};
         let currentDate = new Date();
@@ -563,14 +166,8 @@ updatePhilippineDateTime();
             if (normalized.includes('cebu')) {
                 return 'Cebu';
             }
-            if (normalized.includes('davao city')) {
-                return 'Davao City';
-            }
-            if (normalized.includes('davao de oro')) {
-                return 'Davao de Oro';
-            }
-            if (normalized.includes('davao oriental')) {
-                return 'Davao Oriental';
+            if (normalized.includes('davao')) {
+                return 'Davao';
             }
             if (normalized.includes('baguio') || normalized.includes('benguet')) {
                 return 'Baguio/Benguet';
@@ -747,57 +344,55 @@ updatePhilippineDateTime();
             updateConsigneeChart();
         }
 
-        function updateSpeciesChart() {
-            const speciesCount = {};
-            filteredData.forEach(item => {
-                const species = normalizeText(item['Species'] || 'Unknown');
-                speciesCount[species] = (speciesCount[species] || 0) + 1;
-            });
+       function updateSpeciesChart() { 
+    const speciesCount = {};
+    filteredData.forEach(item => {
+        const species = normalizeText(item['Species'] || 'Unknown');
+        speciesCount[species] = (speciesCount[species] || 0) + 1;
+    });
 
-            const total = filteredData.length;
-            const speciesPercentages = {};
-            Object.keys(speciesCount).forEach(species => {
-                speciesPercentages[species] = ((speciesCount[species] / total) * 100).toFixed(1);
-            });
+    const ctx = document.getElementById('speciesChart').getContext('2d');
+    
+    if (charts.species) {
+        charts.species.destroy();
+    }
 
-            const ctx = document.getElementById('speciesChart').getContext('2d');
-            
-            if (charts.species) {
-                charts.species.destroy();
-            }
+    // 1. Calculate total count
+    const total = Object.values(speciesCount).reduce((a, b) => a + b, 0);
 
-            charts.species = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(speciesPercentages),
-                    datasets: [{
-                        data: Object.values(speciesPercentages),
-                        backgroundColor: [
-                            '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
-                            '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
-                        ]
-                    }]
+    // 2. Convert counts into percentages
+    const percentages = Object.values(speciesCount).map(val => ((val / total) * 100).toFixed(2));
+
+    charts.species = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(speciesCount),
+            datasets: [{
+                data: percentages,
+                backgroundColor: [
+                    '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                    '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const species = context.label;
-                                    const percentage = context.parsed;
-                                    const count = speciesCount[species];
-                                    return `${species}: ${percentage}% (${count} permits)`;
-                                }
-                            }
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw + '%';
                         }
                     }
                 }
-            });
+            }
         }
+    });
+}
+
 
         function updateMonthlyChart() {
             const forestProductsCount = {};
@@ -1001,64 +596,60 @@ updatePhilippineDateTime();
         }
 
         function updatePermitTypeChart() {
-            const permitTypeCount = {};
-            filteredData.forEach(item => {
-                // Try multiple possible field names for permit type
-                const permitType = item['Permit Issued  Type'] || 
-                                 item['Permit Issued Type'] || 
-                                 item['Permit Type'] || 
-                                 item['Type'] || 
-                                 'Unknown';
-                const normalizedPermitType = normalizeText(permitType);
-                permitTypeCount[normalizedPermitType] = (permitTypeCount[normalizedPermitType] || 0) + 1;
-            });
+    const permitTypeCount = {};
+    filteredData.forEach(item => {
+        // Try multiple possible field names for permit type
+        const permitType = item['Permit Issued  Type'] || 
+                         item['Permit Issued Type'] || 
+                         item['Permit Type'] || 
+                         item['Type'] || 
+                         'Unknown';
+        const normalizedPermitType = normalizeText(permitType);
+        permitTypeCount[normalizedPermitType] = (permitTypeCount[normalizedPermitType] || 0) + 1;
+    });
 
-            const total = filteredData.length;
-            const permitTypePercentages = {};
-            Object.keys(permitTypeCount).forEach(permitType => {
-                permitTypePercentages[permitType] = ((permitTypeCount[permitType] / total) * 100).toFixed(1);
-            });
+    const ctx = document.getElementById('permitTypeChart').getContext('2d');
+    
+    if (charts.permitType) {
+        charts.permitType.destroy();
+    }
 
-            const ctx = document.getElementById('permitTypeChart').getContext('2d');
-            
-            if (charts.permitType) {
-                charts.permitType.destroy();
-            }
+    // 1. Calculate total count
+    const total = Object.values(permitTypeCount).reduce((a, b) => a + b, 0);
 
-            charts.permitType = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(permitTypePercentages),
-                    datasets: [{
-                        data: Object.values(permitTypePercentages),
-                        backgroundColor: [
-                            '#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71',
-                            '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
-                        ]
-                    }]
+    // 2. Convert counts into percentages
+    const percentages = Object.values(permitTypeCount).map(val => ((val / total) * 100).toFixed(2));
+
+    charts.permitType = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(permitTypeCount),
+            datasets: [{
+                data: percentages,
+                backgroundColor: [
+                    '#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71',
+                    '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const permitType = context.label;
-                                    const percentage = context.parsed;
-                                    const count = permitTypeCount[permitType];
-                                    return `${permitType}: ${percentage}% (${count} permits)`;
-                                }
-                            }
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw + '%';
                         }
                     }
                 }
-            });
+            }
         }
-
-        function updateConsigneeChart() {
+    });
+}
+            function updateConsigneeChart() {
             const consigneeVolume = {};
             filteredData.forEach(item => {
                 // Try multiple possible field names for consignee
@@ -1123,7 +714,7 @@ updatePhilippineDateTime();
                         x: {
                             title: {
                                 display: true,
-                                text: ''
+                                text: 'CONSIGNEE'
                             }
                         }
                     },
@@ -1161,6 +752,7 @@ updatePhilippineDateTime();
                     <td>${item['Conveyance Type'] || '-'}</td>
                     <td>${item['Conveyance Plate No.'] || '-'}</td>
                     <td>${item['CENRO-Origin'] || '-'}</td>
+                    <td>${item['Permit Issued  Type'] || '-'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1596,18 +1188,5 @@ updatePhilippineDateTime();
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
         });
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976f858385c1fed8',t:'MTc1NjUwNjkyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
-</script>
 
-<script>
-  document.addEventListener("contextmenu", e => e.preventDefault());
-  document.onkeydown = function(e) {
-    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
-      return false;
-    }
-  };
-</script>
-
-</body>
-</html>
+        (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f7f3b7c164094a',t:'MTc1NTI1MzE0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();

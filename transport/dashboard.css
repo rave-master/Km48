@@ -1,0 +1,120 @@
+/* General */
+body { 
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-image: url('/de.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+} 
+
+h1 { text-align: center; margin-bottom: 10px; }
+
+/* Dashboard title */
+.dashboard-title {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1;
+  color: #2d3e50;
+  margin-bottom: 20px;
+}
+.dashboard-title .checkpoint {
+  font-size: 2rem;
+  font-weight: 400;
+  color: #5a7684;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/* Controls */
+.controls { 
+  display:flex; 
+  gap:12px; 
+  align-items:center; 
+  justify-content:space-between; 
+  flex-wrap:wrap; 
+}
+.left-controls { display:flex; gap:12px; align-items:center; }
+.search-box { 
+  padding: 8px; 
+  width: 250px; 
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+}
+.month-nav { display:flex; align-items:center; gap:10px; }
+button.btn, .nav-btn { 
+  padding: 6px 12px; 
+  border: none; 
+  background: #c20d0d; 
+  color: white; 
+  border-radius: 4px; 
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); 
+}
+button.btn:hover, .nav-btn:hover { background: #a30b0b; }
+
+/* Link buttons */
+.link-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.nav-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #2d89ef;
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+.nav-btn:hover {
+  background-color: #1e5bb8;
+  transform: scale(1.08);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Table */
+table { 
+  border-collapse: collapse; 
+  width: 100%; 
+  background: white; 
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); 
+}
+th, td { 
+  border: 1px solid #ddd; 
+  padding: 6px; 
+  text-align: left; 
+  vertical-align: middle; 
+  font-size: 14px; 
+}
+th { background-color: #c20d0d; color: white; }
+tr:nth-child(even) { background-color: #f2f2f2; }
+tfoot td { font-weight: bold; background: #e9ecef; }
+.right-align { text-align: right; }
+.no-data { text-align: center; margin-top: 20px; color: #666; }
+
+/* Images */
+img { 
+  max-width: 100px; 
+  max-height: 80px; 
+  cursor: pointer; 
+  border-radius: 4px; 
+}
+
+/* Map */
+#map { 
+  height: 600px; 
+  width: 1000px; 
+  margin-top: 20px; 
+  border: 2px solid #ccc; 
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
