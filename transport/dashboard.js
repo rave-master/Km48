@@ -1,5 +1,3 @@
-// dashboard.js
-
 // ---------------- Firebase ----------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -79,6 +77,7 @@ let currentMonthIndex = 0;
 let monthList = [];
 let map, markerClusterGroup;
 
+// --- Helpers ---
 function convertDriveLink(url) {
   if (!url) return "";
   if (url.includes("open?id=")) return url.replace("open?id=", "uc?export=view&id=");
@@ -111,6 +110,7 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
 
+// --- Map setup ---
 function initMap() {
   map = L.map('map').setView([0, 0], 2);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
@@ -141,6 +141,7 @@ function addLocationsToMap(data) {
   if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
 }
 
+// --- Table rendering ---
 function renderTable() {
   if (!allData.length) return;
   const headers = Object.keys(allData[0]);
@@ -150,23 +151,32 @@ function renderTable() {
   tableHeader.innerHTML = "";
   tableBody.innerHTML = "";
   tableFooter.innerHTML = "";
+
+  // Build header row
   headers.forEach(h => {
     const th = document.createElement("th");
     th.textContent = h.toUpperCase();
     tableHeader.appendChild(th);
   });
+
+  // Active month label
   const month = monthList[currentMonthIndex] || null;
   document.getElementById("monthLabel").textContent = month ? formatMonthLabel(month).toUpperCase() : "--";
+
   const dateKey = headers.find(k => k.toLowerCase().includes("date")) || headers[0];
   const cuKey = headers.find(k => k.toLowerCase().includes("cu.m"));
   const bdKey = headers.find(k => k.toLowerCase().includes("bd.ft"));
   const piecesKey = headers.find(k => k.toLowerCase().includes("pieces"));
+
   let totalCu = 0, totalBd = 0, totalPieces = 0;
+
   const filteredData = allData.filter(row => {
     const d = new Date(row[dateKey]);
     return !isNaN(d) && `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` === month;
   });
+
   document.getElementById("noDataMessage").style.display = filteredData.length ? "none" : "block";
+
   filteredData.forEach(row => {
     const tr = document.createElement("tr");
     headers.forEach(h => {
@@ -192,10 +202,13 @@ function renderTable() {
       tr.appendChild(td);
     });
     tableBody.appendChild(tr);
+
     totalCu += parseFloat(row[cuKey]) || 0;
     totalBd += parseFloat(row[bdKey]) || 0;
     totalPieces += parseInt(row[piecesKey]) || 0;
   });
+
+  // Footer totals
   const footerRow = document.createElement("tr");
   headers.forEach((h, idx) => {
     const key = h.toLowerCase();
@@ -215,12 +228,14 @@ function renderTable() {
     footerRow.appendChild(td);
   });
   tableFooter.appendChild(footerRow);
+
   addLocationsToMap(filteredData);
 }
 
+// --- Month Navigation ---
 function changeMonth(step) {
   if (!monthList.length) return;
-  currentMonthIndex = (currentMonthIndex + step + monthList.length) % monthList.length;
+  currentMonthIndex = Math.min(Math.max(currentMonthIndex + step, 0), monthList.length - 1);
   renderTable();
 }
 
@@ -230,6 +245,7 @@ function formatMonthLabel(monthStr) {
   return `${new Date(year, month - 1).toLocaleString('default', { month: 'long' })} ${year}`;
 }
 
+// --- Search filter ---
 function filterTable() {
   const searchValue = document.getElementById("searchInput").value.toLowerCase();
   document.querySelectorAll("#dataTable tbody tr").forEach(row => {
@@ -237,7 +253,10 @@ function filterTable() {
     row.style.display = cells.some(cell => cell.textContent.toLowerCase().includes(searchValue)) ? "" : "none";
   });
 }
+window.filterTable = filterTable;
+window.changeMonth = changeMonth;
 
+// --- Load data ---
 fetch(DATA_URL)
   .then(res => res.json())
   .then(data => {
@@ -246,13 +265,23 @@ fetch(DATA_URL)
       Object.keys(row).forEach(k => obj[k.trim()] = row[k]);
       return obj;
     });
+
     const dateKeyCandidate = Object.keys(allData[0] || {}).find(k => k.toLowerCase().includes("date")) || Object.keys(allData[0])[0];
+
+    // Build month list sorted chronologically
     monthList = [...new Set(allData.map(r => {
       const d = new Date(r[dateKeyCandidate]);
       if (isNaN(d)) return null;
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    }).filter(Boolean))].sort();
-    currentMonthIndex = Math.max(0, monthList.indexOf(`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`));
+    }).filter(Boolean))].sort((a, b) => {
+      return new Date(a + "-01") - new Date(b + "-01");
+    });
+
+    // Find current month index
+    const thisMonth = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+    currentMonthIndex = monthList.indexOf(thisMonth);
+    if (currentMonthIndex === -1) currentMonthIndex = monthList.length - 1;
+
     initMap();
     renderTable();
   });
