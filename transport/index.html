@@ -20,23 +20,24 @@
 <body>
 
 <!-- Top bar -->
-<div class="flex justify-end p-4">
-  <button 
-    onclick="logout()" 
-    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition">
-    Logout
-  </button>
-</div>
-
-<!-- Philippine Date & Time -->
-<div class="flex flex-col items-end p-1 text-lg font-medium text-blue-600 leading-tight">
-  <p id="ph-date"></p>
-  <p id="ph-time"></p>
-  <div id="user-info" class="flex justify-end items-center gap-2 p-1 text-lg font-medium text-gray-700 mt-2">
-    <!-- Profile photo -->
-    <img src="https://via.placeholder.com/40" alt="Profile Photo" class="w-10 h-10 rounded-full border border-gray-300">
-    <!-- User name -->
-    <span id="user-name">John Doe</span>
+<div class="card" style="background: rgba(255,255,255,0.95); border-radius: 0.75rem; box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 1.5px 6px rgba(0,0,0,0.07); padding: 0.5rem 1rem; margin: 0.5rem 0; max-width: 320px; float: right;">
+  <div class="flex flex-col items-end gap-2">
+    <button 
+      onclick="logout()" 
+      style="background: linear-gradient(90deg,#ff5f6d,#ffc371); color: #fff; border: none; padding: 0.4rem 1.2rem; font-size: 0.95rem; font-weight: 600; border-radius: 0.5rem; box-shadow: 0 1px 4px rgba(255,95,109,0.15); cursor: pointer; transition: background 0.2s;"
+      onmouseover="this.style.background='#ff5f6d'"
+      onmouseout="this.style.background='linear-gradient(90deg,#ff5f6d,#ffc371)'"
+    >
+      Logout
+    </button>
+    <div class="flex flex-col items-end text-lg font-medium text-blue-600 leading-tight">
+      <p id="ph-date"></p>
+      <p id="ph-time"></p>
+      <div id="user-info" class="flex items-center gap-2 text-lg font-medium text-gray-700 mt-1">
+        <img src="https://via.placeholder.com/36" alt="Profile Photo" style="width:36px;height:36px;border-radius:50%;border:1px solid #ccc;">
+        <span id="user-name">John Doe</span>
+      </div>
+    </div>
   </div>
 </div>
 

@@ -32,17 +32,25 @@
 
 
   // Protect the page
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      // If not logged in, redirect to login page
-      window.location.href = "/index.html";
-    } else {
-      console.log("User is signed in:", user.displayName, user.email);
-      // Example: show user name on homepage
-      document.getElementById("user-info").textContent =
-        `Welcome, ${user.displayName || user.email}`;
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "/index.html";
+  } else {
+    console.log("User is signed in:", user.displayName, user.email);
+    const userInfo = document.getElementById("user-info");
+    userInfo.textContent = `Welcome, ${user.displayName || user.email}`;
+    if (user.photoURL) {
+      const img = document.createElement("img");
+      img.src = user.photoURL;
+      img.alt = "Profile Picture";
+      img.style.width = "32px";
+      img.style.height = "32px";
+      img.style.borderRadius = "50%";
+      img.style.marginLeft = "8px";
+      userInfo.appendChild(img);
     }
-  });
+  }
+});
 
   // Optional: Logout button
   function logout() {
@@ -297,29 +305,26 @@
 </head>
 
 
-<body>
-
-    <!-- Top bar -->
-<div class="flex justify-end p-4">
-  <button 
-    onclick="logout()" 
-    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition">
-    Logout
-  </button>
-</div>
-
-
-<!-- Philippine Date & Time -->
-<div class="flex flex-col items-end p-1 text-lg font-medium text-blue-600 leading-tight" style="line-height: 1.2;">
-  <p id="ph-date" class="mb-0.5"></p>
-  <p id="ph-time" class="mb-0"></p>
-  <div id="user-info" class="flex justify-end items-center gap-2 p-1 text-lg font-medium text-gray-700 mt-2">
-  <!-- Profile photo -->
-  <img src="https://via.placeholder.com/40" alt="Profile Photo" class="w-10 h-10 rounded-full border border-gray-300">
-
-  <!-- User name or info -->
-  <span id="user-name">John Doe</span>
-</div>
+<div class="header" style="position: relative;">
+    <!-- Top bar, Philippine Date & Time, User Info Card -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 2;"></div>
+        <div style="background: rgba(255,255,255,0.85); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); padding: 18px 24px; min-width: 260px;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <button 
+                    onclick="logout()" 
+                    style="padding: 8px 18px; background: #c20d0d; color: #fff; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); cursor: pointer; transition: background 0.2s;">
+                    Logout
+                </button>
+            </div>
+            <div style="text-align: right; color: #2980b9; font-size: 1.08rem; font-weight: 500; margin-bottom: 6px;">
+                <p id="ph-date" style="margin: 0;"></p>
+                <p id="ph-time" style="margin: 0;"></p>
+            </div>
+            <div id="user-info" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 8px; color: #34495e; font-size: 1.08rem;">
+                <!-- Profile photo and user info will be injected by Firebase -->
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

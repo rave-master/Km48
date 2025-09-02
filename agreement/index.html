@@ -30,17 +30,25 @@
 
 
   // Protect the page
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      // If not logged in, redirect to login page
-      window.location.href = "/index.html";
-    } else {
-      console.log("User is signed in:", user.displayName, user.email);
-      // Example: show user name on homepage
-      document.getElementById("user-info").textContent =
-        `Welcome, ${user.displayName || user.email}`;
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "/index.html";
+  } else {
+    console.log("User is signed in:", user.displayName, user.email);
+    const userInfo = document.getElementById("user-info");
+    userInfo.textContent = `Welcome, ${user.displayName || user.email}`;
+    if (user.photoURL) {
+      const img = document.createElement("img");
+      img.src = user.photoURL;
+      img.alt = "Profile Picture";
+      img.style.width = "32px";
+      img.style.height = "32px";
+      img.style.borderRadius = "50%";
+      img.style.marginLeft = "8px";
+      userInfo.appendChild(img);
     }
-  });
+  }
+});
 
   // Optional: Logout button
   function logout() {
