@@ -360,12 +360,9 @@ setInterval(updatePhilippineDateTime, 1000);
 updatePhilippineDateTime();
 </script>
 
-
-
-
     <div class="dashboard-container">
         <div class="header">
-            <h1>KM.48 Forest Products Transport Monitoring Dashboard</h1>
+            <h1>🌲 Forest Products Transport Dashboard</h1>
             <p>Monthly analytics and monitoring of forest product permits and transportation</p>
             <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px;">
                 <button class="refresh-btn" onclick="previousMonth()">← Previous Month</button>
@@ -437,7 +434,7 @@ updatePhilippineDateTime();
                 <canvas id="dailyChart"></canvas>
             </div>
             <div class="chart-container">
-                <div class="chart-title">🏢 CENRO-Origin</div>
+                <div class="chart-title">🏢 CENRO Distribution</div>
                 <canvas id="cenroChart"></canvas>
             </div>
             <div class="chart-container">
@@ -568,14 +565,8 @@ updatePhilippineDateTime();
             if (normalized.includes('cebu')) {
                 return 'Cebu';
             }
-            if (normalized.includes('davao city')) {
-                return 'Davao City';
-            }
-            if (normalized.includes('davao de oro')) {
-                return 'Davao de Oro';
-            }
-            if (normalized.includes('davao oriental')) {
-                return 'Davao Oriental';
+            if (normalized.includes('davao')) {
+                return 'Davao';
             }
             if (normalized.includes('baguio') || normalized.includes('benguet')) {
                 return 'Baguio/Benguet';
@@ -1078,9 +1069,13 @@ updatePhilippineDateTime();
                              parseFloat(item['CU.M.']) || 
                              parseFloat(item['Volume']) || 0;
                 
-                if (volume > 0) {
-                    const normalizedConsignee = normalizeText(consignee);
-                    consigneeVolume[normalizedConsignee] = (consigneeVolume[normalizedConsignee] || 0) + volume;
+                if (volume > 0 && consignee && consignee !== 'Unknown') {
+                    // Don't normalize consignee names - keep them as they are to preserve actual company/person names
+                    // Just clean up basic formatting
+                    const cleanConsignee = consignee.toString().trim();
+                    if (cleanConsignee && cleanConsignee.length > 0) {
+                        consigneeVolume[cleanConsignee] = (consigneeVolume[cleanConsignee] || 0) + volume;
+                    }
                 }
             });
 
@@ -1128,7 +1123,7 @@ updatePhilippineDateTime();
                         x: {
                             title: {
                                 display: true,
-                                text: ''
+                                text: 'Consignee'
                             }
                         }
                     },
@@ -1602,17 +1597,5 @@ updatePhilippineDateTime();
             loadData();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976f858385c1fed8',t:'MTc1NjUwNjkyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
-</script>
-
-<script>
-  document.addEventListener("contextmenu", e => e.preventDefault());
-  document.onkeydown = function(e) {
-    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
-      return false;
-    }
-  };
-</script>
-
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9793a61d54c426d1',t:'MTc1Njg4NTc0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
