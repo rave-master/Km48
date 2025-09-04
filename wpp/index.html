@@ -1,295 +1,598 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forest Products Transport Monitoring Dashboard - Terms of Use</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%); }
-        .scroll-shadow { box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WPP Permit Dashboard - CNC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .dashboard-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    
+    .search-box {
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .filter-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    .status-active {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+    
+    .status-expiring {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+    
+    .status-expired {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .data-row {
+      transition: all 0.2s ease;
+    }
+    
+    .data-row:hover {
+      background-color: #f8fafc;
+      transform: scale(1.01);
+    }
+    
+    .loading-spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Header -->
-    <div class="gradient-bg text-white py-8">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="flex items-center space-x-4 mb-6">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                    <svg class="w-10 h-10 text-green-700" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
-                        <path d="M12 8C10.9 8 10 8.9 10 10S10.9 12 12 12 14 11.1 14 10 13.1 8 12 8Z"/>
-                        <path d="M7 18C7 15.24 9.24 13 12 13S17 15.24 17 18V20H7V18Z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-3xl font-bold">Forest Products Transport Monitoring Dashboard</h1>
-                    <p class="text-green-100 text-lg">Department of Environment and Natural Resources (DENR)</p>
-                    <p class="text-green-200 text-sm">Republic of the Philippines</p>
-                </div>
-            </div>
-            
-            <!-- SDG Icons -->
-            <div class="flex items-center space-x-4 bg-white/10 rounded-lg p-4">
-                <span class="text-sm font-medium">Supporting UN SDGs:</span>
-                <div class="flex space-x-2">
-                    <div class="w-8 h-8 bg-green-600 rounded text-white text-xs font-bold flex items-center justify-center">15</div>
-                    <div class="w-8 h-8 bg-blue-600 rounded text-white text-xs font-bold flex items-center justify-center">13</div>
-                    <div class="w-8 h-8 bg-orange-600 rounded text-white text-xs font-bold flex items-center justify-center">12</div>
-                </div>
-                <span class="text-xs text-green-100">Life on Land • Climate Action • Responsible Consumption</span>
-            </div>
+<body class="bg-gradient-to-br from-slate-50 to-amber-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-4">
+          <div class="w-10 h-10 bg-gradient-to-r from-amber-600 to-orange-700 rounded-lg flex items-center justify-center">
+            <i class="fas fa-industry text-white text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">WPP Permit Dashboard</h1>
+            <p class="text-sm text-gray-600">CENRO New Corella Management System</p>
+          </div>
         </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right">
+            <p class="text-sm text-gray-600">Last Updated</p>
+            <p class="text-sm font-semibold text-gray-900" id="lastUpdated"></p>
+          </div>
+          <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+            <i class="fas fa-user text-gray-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 animate-fade-in">
+      <div class="stat-card p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Permits</p>
+            <p class="text-3xl font-bold text-gray-900" id="totalLicenses">6</p>
+          </div>
+          <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-certificate text-amber-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-sm text-amber-600 font-medium" id="totalLicensesChange">
+            <i class="fas fa-arrow-up"></i> 67% Active
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Active Permits</p>
+            <p class="text-3xl font-bold text-green-600" id="activeLicenses">4</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-sm text-gray-600" id="activeLicensesText">Currently valid</span>
+        </div>
+      </div>
+
+      <div class="stat-card p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Expiring Soon</p>
+            <p class="text-3xl font-bold text-yellow-600" id="expiringSoon">1</p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-sm text-gray-600">Next 1 year</span>
+        </div>
+      </div>
+
+      <div class="stat-card p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Expired</p>
+            <p class="text-3xl font-bold text-red-600" id="expiredLicenses">1</p>
+          </div>
+          <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-sm text-gray-600">Need renewal</span>
+        </div>
+      </div>
+
+      <div class="stat-card p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Establishments</p>
+            <p class="text-3xl font-bold text-blue-600" id="totalHolders">6</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-users text-blue-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <span class="text-sm text-gray-600">Registered establishments</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-6 py-8">
-        <!-- Introduction -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to the Forest Products Transport Monitoring System</h2>
-            <p class="text-gray-600 leading-relaxed mb-4">
-                This dashboard provides real-time monitoring and tracking of forest products transportation across the Philippines, 
-                supporting sustainable forest management and compliance with environmental regulations. By accessing this system, 
-                you contribute to the protection of our nation's forest resources and biodiversity.
-            </p>
-            <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
-                <p class="text-green-800 font-medium">🌲 Protecting Philippine Forests for Future Generations</p>
-                <p class="text-green-700 text-sm mt-1">This system aligns with the Philippines' commitment to sustainable development and forest conservation.</p>
-            </div>
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8 animate-fade-in">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+        <div class="flex flex-wrap gap-3">
+          <button class="filter-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 ring-2 ring-blue-300" onclick="filterTable('all')">
+            <i class="fas fa-list mr-2"></i>All Permits
+          </button>
+          <button class="filter-btn px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700" onclick="filterTable('active')">
+            <i class="fas fa-check mr-2"></i>Active
+          </button>
+          <button class="filter-btn px-4 py-2 bg-yellow-600 text-white rounded-lg text-sm font-medium hover:bg-yellow-700" onclick="filterTable('expiring-soon')">
+            <i class="fas fa-clock mr-2"></i>Expiring Soon
+          </button>
+          <button class="filter-btn px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700" onclick="filterTable('expired')">
+            <i class="fas fa-times mr-2"></i>Expired
+          </button>
+          <button class="filter-btn px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700" onclick="exportData()">
+            <i class="fas fa-download mr-2"></i>Export
+          </button>
         </div>
-
-        <!-- Legal Basis -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Legal Basis</h3>
-            <div class="space-y-3 text-gray-600">
-                <div class="flex items-start space-x-3">
-                    <span class="text-green-600 font-bold">•</span>
-                    <span><strong>Presidential Decree No. 705</strong> - Revised Forestry Code of the Philippines</span>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <span class="text-green-600 font-bold">•</span>
-                    <span><strong>DENR Administrative Order No. 97-32</strong> - Rules for the issuance of Certificates of Verification and transport permits</span>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <span class="text-green-600 font-bold">•</span>
-                    <span><strong>Executive Order No. 23</strong> - Moratorium on cutting and harvesting of timber in natural and residual forests</span>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <span class="text-green-600 font-bold">•</span>
-                    <span><strong>Republic Act No. 9147</strong> - Wildlife Resources Conservation and Protection Act</span>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <span class="text-green-600 font-bold">•</span>
-                    <span><strong>Other relevant DENR issuances</strong> and local environmental ordinances</span>
-                </div>
-            </div>
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="Search WPP permits..." 
+                 class="search-box pl-10 pr-4 py-2 rounded-lg border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full lg:w-80">
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
+      </div>
+    </div>
 
-        <!-- Sustainable Development Goals -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Relevant Sustainable Development Goals (SDGs)</h3>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
-                    <div class="flex items-center space-x-3 mb-2">
-                        <div class="w-10 h-10 bg-green-600 rounded text-white text-sm font-bold flex items-center justify-center">15</div>
-                        <h4 class="font-semibold text-green-800">SDG 15 – Life on Land</h4>
-                    </div>
-                    <p class="text-green-700 text-sm">Protect, restore, and promote sustainable use of terrestrial ecosystems, manage forests sustainably, halt deforestation, and prevent biodiversity loss.</p>
-                </div>
-
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                    <div class="flex items-center space-x-3 mb-2">
-                        <div class="w-10 h-10 bg-blue-600 rounded text-white text-sm font-bold flex items-center justify-center">13</div>
-                        <h4 class="font-semibold text-blue-800">SDG 13 – Climate Action</h4>
-                    </div>
-                    <p class="text-blue-700 text-sm">Take urgent action to combat climate change and its impacts through forest conservation.</p>
-                </div>
-
-                <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
-                    <div class="flex items-center space-x-3 mb-2">
-                        <div class="w-10 h-10 bg-orange-600 rounded text-white text-sm font-bold flex items-center justify-center">12</div>
-                        <h4 class="font-semibold text-orange-800">SDG 12 – Responsible Consumption and Production</h4>
-                    </div>
-                    <p class="text-orange-700 text-sm">Ensure lawful and sustainable production and trade of forest products.</p>
-                </div>
-
-                <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded">
-                    <div class="flex items-center space-x-3 mb-2">
-                        <div class="w-10 h-10 bg-purple-600 rounded text-white text-sm font-bold flex items-center justify-center">16</div>
-                        <h4 class="font-semibold text-purple-800">SDG 16 – Peace, Justice, and Strong Institutions</h4>
-                    </div>
-                    <p class="text-purple-700 text-sm">Promote transparency, rule of law, and strong environmental governance.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Terms and Conditions -->
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Terms and Conditions of Use</h3>
-            <div class="max-h-96 overflow-y-auto scroll-shadow border rounded-lg p-4 bg-gray-50">
-                <div class="space-y-4 text-sm text-gray-700">
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">1. Authorized Use</h4>
-                        <p>This system is exclusively for authorized personnel of DENR and its partner agencies. Unauthorized access is prohibited and may result in legal action under applicable Philippine laws.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">2. Data Confidentiality</h4>
-                        <p>All information accessed through this system is confidential and proprietary to the Philippine government. Users must maintain strict confidentiality and not disclose any information to unauthorized parties.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">3. Monitoring and Logging</h4>
-                        <p>All activities within this system are monitored and logged for security and audit purposes. Users consent to such monitoring as a condition of access.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">4. Data Accuracy</h4>
-                        <p>Users are responsible for ensuring the accuracy of all data entered into the system. False or misleading information may result in administrative or legal consequences.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">5. System Security</h4>
-                        <p>Users must maintain the security of their login credentials and immediately report any suspected security breaches. Sharing of credentials is strictly prohibited.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">6. Environmental Compliance</h4>
-                        <p>All forest products transport activities monitored through this system must comply with Philippine environmental laws and DENR regulations. Non-compliance will be reported to appropriate authorities.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">7. Data Privacy</h4>
-                        <p>Personal data collected and processed through this system is handled in accordance with the Data Privacy Act of 2012 and DENR privacy policies. Users consent to the collection and processing of their data for official purposes.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">8. System Availability</h4>
-                        <p>While DENR strives to maintain system availability, users acknowledge that maintenance, updates, or technical issues may temporarily affect access.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">9. Intellectual Property</h4>
-                        <p>All content, data, and intellectual property within this system belongs to the Philippine government and DENR. Unauthorized reproduction or distribution is prohibited.</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">10. Termination</h4>
-                        <p>DENR reserves the right to terminate user access at any time without notice for violation of these terms or for administrative reasons.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Agreement Section -->
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Agreement Required</h3>
-                <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Version 2.1 - December 2024</span>
-            </div>
-            
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <div class="flex items-start space-x-3">
-                    <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    <div>
-                        <p class="text-yellow-800 font-medium">Important Notice</p>
-                        <p class="text-yellow-700 text-sm">By clicking "I Agree and Enter Dashboard", you acknowledge that you have read, understood, and agree to comply with all terms and conditions outlined above.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-4 mb-6">
-                <input type="checkbox" id="confirmRead" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                <label for="confirmRead" class="text-gray-700">I have read and understood the terms and conditions</label>
-            </div>
-
-            <div class="flex items-center space-x-4 mb-8">
-                <input type="checkbox" id="confirmAuthorized" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                <label for="confirmAuthorized" class="text-gray-700">I confirm that I am an authorized user of this system</label>
-            </div>
-
-            <div class="flex justify-center">
-                <button id="agreeButton" disabled class="bg-gray-400 text-white px-8 py-3 rounded-lg font-semibold text-lg cursor-not-allowed transition-all duration-300">
-                    I Agree and Enter Dashboard
-                </button>
-            </div>
-        </div>
+    <!-- Data Table -->
+    <div class="table-container animate-fade-in">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">
+          <i class="fas fa-table mr-2 text-amber-600"></i>
+          Wood Processing Permit Registry
+        </h3>
+        <p class="text-sm text-gray-600 mt-1">Complete list of wood processing permits and establishments</p>
+      </div>
+      
+      <div class="overflow-x-auto" id="tableContainer">
+        <table class="w-full" id="licenseTable">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-industry mr-2"></i>Establishment
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-map-marker-alt mr-2"></i>Location/Address
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-hashtag mr-2"></i>Permit Number
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-calendar-check mr-2"></i>Date Approved
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-calendar-times mr-2"></i>Expiry Date
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-user-tie mr-2"></i>Owner/Representative
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-user-check mr-2"></i>Data Provider
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <i class="fas fa-info-circle mr-2"></i>Status
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
+            <!-- Data will be loaded from Google Sheets -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <p class="text-gray-300">© 2024 Department of Environment and Natural Resources, Republic of the Philippines</p>
-            <p class="text-gray-400 text-sm mt-2">Protecting and conserving the environment and natural resources for sustainable development</p>
-        </div>
-    </footer>
+    <div class="mt-8 text-center text-sm text-gray-600">
+      <p>Data provided by Carmalyn C. Nesperos / RPS-LPU • CENRO New Corella</p>
+      <p class="mt-2">© 2024 Wood Processing Permit Management System</p>
+    </div>
+  </div>
 
-    <script>
-        const AGREEMENT_VERSION = '2.1';
-        const confirmRead = document.getElementById('confirmRead');
-        const confirmAuthorized = document.getElementById('confirmAuthorized');
-        const agreeButton = document.getElementById('agreeButton');
+  <script>
+    let allData = [];
+    let currentFilter = 'all';
 
-        // Check if user has already agreed to current version
-        function checkExistingAgreement() {
-            const storedVersion = sessionStorage.getItem('denr_agreement_version');
-            const agreementAccepted = sessionStorage.getItem('denr_agreement_accepted');
-            
-            if (storedVersion === AGREEMENT_VERSION && agreementAccepted === 'true') {
-                // User has already agreed to current version, redirect to dashboard
-                window.location.href ='/transport/'; // Replace with actual dashboard URL
-            }
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      updateLastUpdated();
+      initializeSearch();
+      loadDataFromGoogleSheets();
+    });
+
+    function updateLastUpdated() {
+      const now = new Date();
+      const formatted = now.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('lastUpdated').textContent = formatted;
+    }
+
+    async function loadDataFromGoogleSheets() {
+      try {
+        // WPP Google Sheets URL
+        const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSwGBYZbKiE-Z_YNKnYz59B7uS_nmxFJd85mRrPFK03W_B0HOADgr2D5q7mT8Kt17-xFhrIiSk8eq0H/pub?gid=0&single=true&output=csv', {
+          method: 'GET',
+          headers: {
+            'Accept': 'text/csv,text/plain,*/*'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        // Enable/disable agree button based on checkboxes
-        function updateAgreeButton() {
-            if (confirmRead.checked && confirmAuthorized.checked) {
-                agreeButton.disabled = false;
-                agreeButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                agreeButton.classList.add('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
-            } else {
-                agreeButton.disabled = true;
-                agreeButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-                agreeButton.classList.remove('bg-green-600', 'hover:bg-green-700', 'cursor-pointer');
-            }
+        
+        const csvText = await response.text();
+        console.log('CSV Data received:', csvText.substring(0, 500));
+        
+        // Parse CSV
+        const lines = csvText.split('\n').filter(line => line.trim());
+        console.log('Number of lines:', lines.length);
+        
+        if (lines.length < 2) {
+          throw new Error('No data found in the spreadsheet');
         }
-
-        // Handle agreement acceptance
-        function handleAgreement() {
-            if (confirmRead.checked && confirmAuthorized.checked) {
-                // Store agreement in sessionStorage
-                sessionStorage.setItem('denr_agreement_version', AGREEMENT_VERSION);
-                sessionStorage.setItem('denr_agreement_accepted', 'true');
-                sessionStorage.setItem('denr_agreement_timestamp', new Date().toISOString());
-                
-                // Show success message
-                agreeButton.innerHTML = '✓ Agreement Recorded - Entering Dashboard...';
-                agreeButton.classList.add('bg-green-700');
-                
-                // Simulate redirect to dashboard after 2 seconds
-                setTimeout(() => {
-                    alert('Agreement recorded! In a real implementation, you would now be redirected to the dashboard.');
-                    window.location.href = '/transport/'; // Replace with actual dashboard URL
-                }, 2000);
-            }
+        
+        const headers = parseCSVLine(lines[0]);
+        console.log('Headers:', headers);
+        
+        allData = [];
+        for (let i = 1; i < lines.length; i++) {
+          const values = parseCSVLine(lines[i]);
+          
+          if (values.length >= 1 && values[0] && values[0].trim()) {
+            allData.push({
+              establishment: values[0] || '',
+              location: values[1] || '',
+              permitNumber: values[2] || '',
+              dateApproved: values[3] || '',
+              expiryDate: values[4] || '',
+              owner: values[5] || '',
+              dataProvider: values[6] || ''
+            });
+          }
         }
+        
+        console.log('Processed data:', allData);
+        
+        if (allData.length > 0) {
+          populateTable();
+          calculateStats();
+        } else {
+          console.log('No valid data found, keeping sample data');
+        }
+        
+      } catch (error) {
+        console.error('Error loading data from Google Sheets:', error);
+        console.log('Using sample data as fallback');
+      }
+    }
 
-        // Event listeners
-        confirmRead.addEventListener('change', updateAgreeButton);
-        confirmAuthorized.addEventListener('change', updateAgreeButton);
-        agreeButton.addEventListener('click', handleAgreement);
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      result.push(current.trim());
+      return result;
+    }
 
-        // Check for existing agreement on page load
-        checkExistingAgreement();
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96ec6d206257feeb',t:'MTc1NTEzMjI5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
-</script>
+    function getLicenseStatus(expiryDate) {
+      if (!expiryDate) return { status: 'Unknown', class: 'status-expired' };
+      
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      const oneYearFromNow = new Date();
+      oneYearFromNow.setFullYear(today.getFullYear() + 1);
+      
+      if (expiry < today) {
+        return { status: 'Expired', class: 'status-expired' };
+      } else if (expiry <= oneYearFromNow) {
+        return { status: 'Expiring Soon', class: 'status-expiring' };
+      } else {
+        return { status: 'Active', class: 'status-active' };
+      }
+    }
 
-<script>
+    function populateTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      
+      allData.forEach(row => {
+        const status = getLicenseStatus(row.expiryDate);
+        
+        const tr = document.createElement('tr');
+        tr.className = 'data-row';
+        tr.setAttribute('data-status', status.status.toLowerCase().replace(' ', '-'));
+        
+        tr.innerHTML = `
+          <td class="px-6 py-4">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+                <i class="fas fa-industry text-amber-600"></i>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">${row.establishment}</div>
+                <div class="text-sm text-gray-500">Wood Processing Plant</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-900">${row.location}</td>
+          <td class="px-6 py-4 text-sm font-mono text-gray-900">${row.permitNumber}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">${row.dateApproved}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">${row.expiryDate}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">${row.owner}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">${row.dataProvider}</td>
+          <td class="px-6 py-4">
+            <span class="${status.class} inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white">
+              <i class="fas ${status.status === 'Active' ? 'fa-check-circle' : status.status === 'Expiring Soon' ? 'fa-clock' : 'fa-times-circle'} mr-1"></i>
+              ${status.status}
+            </span>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+    function calculateStats() {
+      // Use sample data for calculation if no live data
+      const sampleData = [
+        {expiryDate: 'March 15, 2029'},
+        {expiryDate: 'July 20, 2028'},
+        {expiryDate: 'April 10, 2025'},
+        {expiryDate: 'November 5, 2030'},
+        {expiryDate: 'September 12, 2027'},
+        {expiryDate: 'January 15, 2023'}
+      ];
+      
+      const dataToUse = allData.length > 0 ? allData : sampleData;
+      const total = dataToUse.length;
+      let active = 0;
+      let expiring = 0;
+      let expired = 0;
+
+      dataToUse.forEach(row => {
+        const status = getLicenseStatus(row.expiryDate);
+        if (status.status === 'Active') {
+          active++;
+        } else if (status.status === 'Expiring Soon') {
+          expiring++;
+        } else if (status.status === 'Expired') {
+          expired++;
+        }
+      });
+
+      document.getElementById('totalLicenses').textContent = total;
+      document.getElementById('activeLicenses').textContent = active;
+      document.getElementById('expiringSoon').textContent = expiring;
+      document.getElementById('expiredLicenses').textContent = expired;
+      document.getElementById('totalHolders').textContent = total;
+
+      // Update status text
+      const activePercentage = total > 0 ? Math.round((active / total) * 100) : 0;
+      document.getElementById('totalLicensesChange').innerHTML = `<i class="fas fa-arrow-up"></i> ${activePercentage}% Active`;
+      document.getElementById('activeLicensesText').textContent = expired > 0 ? `${expired} expired permits` : 'Currently valid';
+    }
+
+    function initializeSearch() {
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#tableBody tr');
+        
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const matchesSearch = text.includes(searchTerm);
+          const matchesFilter = currentFilter === 'all' || row.getAttribute('data-status') === currentFilter;
+          
+          if (matchesSearch && matchesFilter) {
+            row.style.display = '';
+            row.classList.add('animate-fade-in');
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    function filterTable(filter) {
+      currentFilter = filter;
+      const rows = document.querySelectorAll('#tableBody tr');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const matchesSearch = searchTerm === '' || text.includes(searchTerm);
+        const matchesFilter = filter === 'all' || row.getAttribute('data-status') === filter;
+        
+        if (matchesSearch && matchesFilter) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Update button states
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-blue-300');
+      });
+      event.target.classList.add('ring-2', 'ring-blue-300');
+    }
+
+    function exportData() {
+      // Sample WPP data for export
+      const sampleData = [
+        {establishment: 'Davao Wood Processing Corp.', location: 'San Roque, New Corella, Davao del Norte', permitNumber: 'DENRXI-2A-WPP01-R-03152029', dateApproved: 'March 15, 2024', expiryDate: 'March 15, 2029', owner: 'Roberto Martinez', dataProvider: 'Carmalyn C. Nesperos / RPS-LPU'},
+        {establishment: 'New Corella Plywood Manufacturing', location: 'Poblacion, New Corella, Davao del Norte', permitNumber: 'DENRXI-2A-WPP02-R-07202028', dateApproved: 'July 20, 2023', expiryDate: 'July 20, 2028', owner: 'Maria Santos', dataProvider: 'Carmalyn C. Nesperos / RPS-LPU'},
+        {establishment: 'Mountain View Timber Processing', location: 'Cabcab, New Corella, Davao del Norte', permitNumber: 'DENRXI-2A-WPP03-R-04102025', dateApproved: 'April 10, 2020', expiryDate: 'April 10, 2025', owner: 'Juan dela Cruz', dataProvider: 'Carmalyn C. Nesperos / RPS-LPU'},
+        {establishment: 'Golden Wood Industries', location: 'Mesaoy, New Corella, Davao del Norte', permitNumber: 'DENRXI-2A-WPP04-R-11052030', dateApproved: 'November 5, 2025', expiryDate: 'November 5, 2030', owner: 'Ana Reyes', dataProvider: 'Carmalyn C. Nesperos / RPS-LPU'},
+        {establishment: 'Pacific Lumber Mills', location: 'San Isidro, New Corella, Davao del Norte', permitNumber: 'DENRXI-2A-WPP05-R-09122027', dateApproved: 'September 12, 2022', expiryDate: 'September 12, 2027', owner: 'Carlos Garcia', dataProvider: 'Carmalyn C. Nesperos / RPS-LPU'},
+        {establishment: 'Sunrise Wood Processing', location: 'Tagum Road, New Corella, Davao del Norte', permitNumber: 'DENRXI-2A-WPP06-R-01152023', dateApproved: 'January 15, 2018', expiryDate: 'January 15, 2023', owner: 'Elena Rodriguez', dataProvider: 'Carmalyn C. Nesperos / RPS-LPU'}
+      ];
+
+      const dataToExport = allData.length > 0 ? allData : sampleData;
+      const headers = ['Establishment', 'Location/Address', 'Permit Number', 'Date Approved', 'Expiry Date', 'Owner/Representative', 'Data Provider', 'Status'];
+      const rows = dataToExport.map(row => {
+        const status = getLicenseStatus(row.expiryDate);
+        return [
+          row.establishment,
+          row.location,
+          row.permitNumber,
+          row.dateApproved,
+          row.expiryDate,
+          row.owner,
+          row.dataProvider,
+          status.status
+        ];
+      });
+
+      const csvContent = [headers, ...rows].map(row => 
+        row.map(cell => `"${cell}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wpp-permits-' + new Date().toISOString().split('T')[0] + '.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    // Add smooth scrolling and animations
+    document.querySelectorAll('.stat-card, .table-container').forEach(el => {
+      el.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+      });
+      
+      el.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96a41946b3fbfedb',t:'MTc1NDM3Mzg4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+  <script>
   document.addEventListener("contextmenu", e => e.preventDefault());
   document.onkeydown = function(e) {
     if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
@@ -297,6 +600,4 @@
     }
   };
 </script>
-
-</body>
 </html>
