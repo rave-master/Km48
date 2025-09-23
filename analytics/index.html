@@ -562,6 +562,9 @@ updatePhilippineDateTime();
             if (normalized.includes('manila') || normalized.includes('metro manila') || normalized.includes('ncr')) {
                 return 'Metro Manila';
             }
+            if (normalized.includes('Carmen DDN') || normalized.includes('Carmen Davao del Norte') || normalized.includes('carmen ddn')) {
+                return 'Carmen, DDN';
+            }
             if (normalized.includes('cebu')) {
                 return 'Cebu';
             }
@@ -579,6 +582,20 @@ updatePhilippineDateTime();
             }
             if (normalized.includes('quezon')) {
                 return 'Quezon';
+            }
+
+            // Consignee Volume Distribution (CU.M)
+            if (normalized.includes('Charverson Industry') || normalized.includes('Charverson Wood') || normalized.includes('Charverson Industry')) {
+                return 'CHARVERSON';
+            }
+            if (normalized.includes('wood plant') || normalized.includes('woodplant') || normalized.includes('wood industry')) {
+                return 'WOODPLANT INDUSTRY';
+            }
+            if (normalized.includes('Grand Wood')) {
+                return 'GRANDWOOD';
+            }
+            if (normalized.includes('wood craft') || normalized.includes('woodcraft')) {
+                return 'Wood Craft Industry';
             }
             
             // Capitalize first letter of each word for display
@@ -1123,7 +1140,7 @@ updatePhilippineDateTime();
                         x: {
                             title: {
                                 display: true,
-                                text: 'Consignee'
+                                text: ''
                             }
                         }
                     },
