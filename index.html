@@ -7,17 +7,19 @@
 -->
 
 <head>
-  <!-- Security Headers
+  <!-- Security Headers -->
   <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' https://cdn.tailwindcss.com https://www.gstatic.com https://www.googletagmanager.com 'unsafe-inline';
+  script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://www.googletagmanager.com https://apis.google.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' data: https://www.gstatic.com https://www.google.com https://ia601205.us.archive.org;
   font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://firebasestorage.googleapis.com https://www.googleapis.com;
+  connect-src 'self' https://firebasestorage.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://apis.google.com https://accounts.google.com https://graph.facebook.com;
+  frame-src 'self' https://www.facebook.com https://apis.google.com;
   frame-ancestors 'none';
   upgrade-insecure-requests;
-"> -->
+">
+ 
 
 
   <meta charset="UTF-8" />
@@ -25,7 +27,7 @@
   <title>Monitoring Dashboard Portal</title>
   <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
 
-  <script src="force-https.js" defer></script>
+  <script src="force-https.js" defer></script> 
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
