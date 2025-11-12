@@ -65,15 +65,9 @@ document.getElementById("googleLogin").addEventListener("click", () => {
       setTimeout(() => window.location.href = "/agreement/", 1500);
     })
     .catch(error => {
-  hideLoader();
-
-  if (error.code === "auth/popup-closed-by-user") {
-    showAlert("Notice", "Login window was closed before completing sign-in. Please try again.");
-  } else {
-    showAlert("Error", error.message);
-  }
-});
-
+      hideLoader();
+      showAlert("Error", error.message);
+    });
 });
 
 // --- Facebook Login ---
