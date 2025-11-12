@@ -1,54 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<!-- Anti-Clickjacking Header -->
+  <!-- Security Headers -->
   <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none';">
-   <!-- Strict-Transport-Security Header -->
-   <meta http-equiv="Strict-Transport-Security" content="max-age=63072000; includeSubDomains; preload">
-   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-   <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-   <meta http-equiv="X-Permitted-Cross-Domain-Policies" content="none">
-   <meta http-equiv="X-Download-Options" content="noopen">
-   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-   <meta http-equiv="X-Frame-Options" content="DENY">
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H25FHTK2S5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-H25FHTK2S5');
-</script>
-
+  <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; upgrade-insecure-requests;">
+  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000; includeSubDomains; preload">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="X-Permitted-Cross-Domain-Policies" content="none">
+  <meta http-equiv="X-Download-Options" content="noopen">
 
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monitoring Dashboard Portal</title>
   <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
 
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Tag -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H25FHTK2S5"></script>
+
+  <!-- JS Files -->
+  <script src="ui.js" defer></script>
+  <script type="module" src="firebase-auth.js" defer></script>
 </head>
-
-
 
 <body class="relative h-screen flex items-center justify-center bg-[url('de.jpg')] bg-cover bg-center">
   <!-- Overlay -->
   <div class="absolute inset-0 bg-black bg-opacity-10"></div>
 
   <!-- Login Card -->
-  <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-md p-4 z-6
-     drop-shadow-[0_0_15px_rgba(34,19,94,0.5)]">
+  <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-md p-4 z-6 drop-shadow-[0_0_15px_rgba(34,19,94,0.5)]">
     <img src="/2x2.gif" alt="DENR Logo" class="w-20 mx-auto mb-4">
-    <h1 class="text-3xl font-bold text-center mb-4">Forest Products Transport Monitoring Dashboard<br>Login Portal</h1>
+    <h1 class="text-3xl font-bold text-center mb-4">
+      Forest Products Transport Monitoring Dashboard<br>Login Portal
+    </h1>
 
     <!-- Tabs -->
     <div class="flex mb-6 border-b">
@@ -57,33 +49,19 @@
     </div>
 
     <!-- Email Login -->
-   <div id="email-login">
-  <input id="email" type="email" placeholder="Email" class="w-full border p-2 rounded mb-3">
+    <div id="email-login">
+      <input id="email" type="email" placeholder="Email" class="w-full border p-2 rounded mb-3">
 
-  <!-- Password field with toggle -->
-  <div class="relative mb-3">
-    <input id="password" type="password" placeholder="Password" class="w-full border p-2 rounded pr-10">
-    <!-- Eye Icon -->
-    <span id="togglePassword" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
-      👁️
-    </span>
-  </div>
+      <div class="relative mb-3">
+        <input id="password" type="password" placeholder="Password" class="w-full border p-2 rounded pr-10">
+        <span id="togglePassword" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">👁️</span>
+      </div>
 
-  <button id="loginBtn" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Login</button>
-</div>
-
-<script>
-  const togglePassword = document.getElementById("togglePassword");
-  const password = document.getElementById("password");
-
-  togglePassword.addEventListener("click", () => {
-    const type = password.type === "password" ? "text" : "password";
-    password.type = type;
-    // Toggle icon between open/closed eye
-    togglePassword.textContent = type === "password" ? "👁️" : "🙈";
-  });
-</script>
-
+      <button id="loginBtn" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Login</button>
+      <p class="text-center text-sm mt-3">
+        <a href="#" id="forgotPasswordLink" class="text-blue-600 hover:underline">Forgot password?</a>
+      </p>
+    </div>
 
     <!-- Social Login -->
     <div id="social-login" class="hidden">
@@ -94,104 +72,34 @@
     <p id="message" class="text-center text-red-600 mt-4"></p>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
-    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-   
+  <!-- Modal Loader -->
+  <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-2xl text-center shadow-xl">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mx-auto mb-4"></div>
+      <p class="text-lg font-semibold text-gray-700">Processing...</p>
+    </div>
+  </div>
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyD2xLVGe79OxzEHC2uXNMcbCtWugGn2M_k",
-      authDomain: "simple-logon.firebaseapp.com",
-      projectId: "simple-logon",
-      storageBucket: "simple-logon.firebasestorage.app",
-      messagingSenderId: "698709393716",
-      appId: "1:698709393716:web:5d93c85f962769d8a42561",
-      measurementId: "G-H25FHTK2S5"
-    };
+  <!-- Alert Modal -->
+  <div id="alertModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
+      <h2 id="alertTitle" class="text-xl font-bold mb-2 text-green-700">Success</h2>
+      <p id="alertMessage" class="text-gray-700 mb-4">Operation successful.</p>
+      <button id="alertClose" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">OK</button>
+    </div>
+  </div>
 
-    // Init Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth();
-    
-
-
-    // Tab switching
-    const tabEmail = document.getElementById("tab-email");
-    const tabSocial = document.getElementById("tab-social");
-    const emailLogin = document.getElementById("email-login");
-    const socialLogin = document.getElementById("social-login");
-
-    tabEmail.addEventListener("click", () => {
-      emailLogin.classList.remove("hidden");
-      socialLogin.classList.add("hidden");
-      tabEmail.classList.add("border-green-600", "text-black");
-      tabSocial.classList.remove("border-green-600", "text-black");
-      tabSocial.classList.add("text-gray-500");
-    });
-
-    tabSocial.addEventListener("click", () => {
-      socialLogin.classList.remove("hidden");
-      emailLogin.classList.add("hidden");
-      tabSocial.classList.add("border-green-600", "text-black");
-      tabEmail.classList.remove("border-green-600", "text-black");
-      tabEmail.classList.add("text-gray-500");
-    });
-
-    // Email login
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(userCredential => {
-          document.getElementById("message").textContent = "Login successful! ✅";
-          console.log("User:", userCredential.user);
-          window.location.href = "/agreement/"; // redirect after login
-        })
-        .catch(error => {
-          document.getElementById("message").textContent = error.message;
-        });
-    });
-
-    // Google login
-    const googleProvider = new GoogleAuthProvider();
-    document.getElementById("googleLogin").addEventListener("click", () => {
-      signInWithPopup(auth, googleProvider)
-        .then(result => {
-          document.getElementById("message").textContent = "Google login successful ✅";
-          console.log(result.user);
-          window.location.href = "/agreement/"; // redirect after login
-        })
-        .catch(error => {
-          document.getElementById("message").textContent = error.message;
-        });
-    });
-
-    // Facebook login
-    const facebookProvider = new FacebookAuthProvider();
-    document.getElementById("facebookLogin").addEventListener("click", () => {
-      signInWithPopup(auth, facebookProvider)
-        .then(result => {
-          document.getElementById("message").textContent = "Facebook login successful ✅";
-          console.log(result.user);
-          window.location.href = "/agreement/"; // redirect after login
-        })
-        .catch(error => {
-          document.getElementById("message").textContent = error.message;
-        });
-    });
-  </script>
-
-
-<script>
-  document.addEventListener("contextmenu", e => e.preventDefault());
-  document.onkeydown = function(e) {
-    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0))) {
-      return false;
-    }
-  };
-</script>
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
+      <h2 class="text-xl font-bold mb-2 text-blue-700">Reset Password</h2>
+      <p class="text-gray-700 mb-4">Enter your registered email to receive a reset link.</p>
+      <input id="resetEmail" type="email" placeholder="Email address" class="w-full border p-2 rounded mb-4">
+      <div class="flex justify-between gap-2">
+        <button id="resetSend" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Send</button>
+        <button id="resetCancel" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500">Cancel</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
