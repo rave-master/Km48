@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<!-- Security headers note:
+  GitHub Pages does NOT support server-level security headers like X-Frame-Options or HSTS.
+  This site uses meta-based CSP and JS security as a fallback.
+-->
+
 <head>
   <!-- Security Headers -->
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'; upgrade-insecure-requests;">
-  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000; includeSubDomains; preload">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-  <meta http-equiv="X-Permitted-Cross-Domain-Policies" content="none">
-  <meta http-equiv="X-Download-Options" content="noopen">
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://cdn.tailwindcss.com https://www.gstatic.com https://www.googletagmanager.com 'unsafe-inline';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' data: https://www.gstatic.com https://www.google.com https://ia601205.us.archive.org;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' https://firebasestorage.googleapis.com https://www.googleapis.com;
+  frame-ancestors 'none';
+  upgrade-insecure-requests;
+">
+
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monitoring Dashboard Portal</title>
   <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
+
+  <!-- <script src="force-https.js" defer></script>  -->
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -32,6 +44,16 @@
 </head>
 
 <body class="relative h-screen flex items-center justify-center bg-[url('de.jpg')] bg-cover bg-center">
+
+<!--noscript> Protection -->
+<noscript>
+  <style>
+    body { display: none !important; }
+  </style>
+  <p>This site requires JavaScript to run properly.</p>
+</noscript>
+
+
   <!-- Overlay -->
   <div class="absolute inset-0 bg-black bg-opacity-10"></div>
 
