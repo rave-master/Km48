@@ -1,36 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-  
-<!-- Security headers note:
-  GitHub Pages does NOT support server-level security headers like X-Frame-Options or HSTS.
-  This site uses meta-based CSP and JS security as a fallback.
--->
 
 <head>
-  <!-- Security Headers -->
-
-  <meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  base-uri 'self';
-  object-src 'none';
-  script-src 'self' 'unsafe-eval' https://cdn.tailwindcss.com https://www.gstatic.com https://www.googletagmanager.com https://apis.google.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' data: https://www.gstatic.com https://www.google.com https://graph.facebook.com https://www.facebook.com;
-  font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://firebasestorage.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://apis.google.com https://graph.facebook.com https://simple-logon.firebaseapp.com https://simple-logon.firebasestorage.app;
-  frame-src 'self' https://accounts.google.com https://www.facebook.com https://simple-logon.firebaseapp.com https://*.firebaseapp.com;
-  frame-ancestors 'none';
-  upgrade-insecure-requests;
-">
-
-
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Monitoring Dashboard Portal</title>
   <link rel="icon" href="https://ia601205.us.archive.org/12/items/icon_20250717/icon.png" type="image/png">
-
- <script src="force-https.js" defer></script>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -39,21 +14,26 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions.js"></script>
 
   <!-- Google Tag -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-H25FHTK2S5"></script>
 
-  <!-- JS Files -->
+  <!-- Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <!-- Your JS Files -->
   <script src="ui.js" defer></script>
   <script type="module" src="firebase-auth.js" defer></script>
 </head>
 
 <body class="relative h-screen flex items-center justify-center bg-[url('de.jpg')] bg-cover bg-center">
+
   <!-- Overlay -->
   <div class="absolute inset-0 bg-black bg-opacity-10"></div>
 
   <!-- Login Card -->
-  <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-md p-4 z-6 drop-shadow-[0_0_15px_rgba(34,19,94,0.5)]">
+  <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-md p-6 z-10 drop-shadow-[0_0_15px_rgba(34,19,94,0.5)]">
     <img src="/2x2.gif" alt="DENR Logo" class="w-20 mx-auto mb-4">
     <h1 class="text-3xl font-bold text-center mb-4">
       Forest Products Transport Monitoring Dashboard<br>Login Portal
@@ -66,12 +46,17 @@
     </div>
 
     <!-- Email Login -->
-    <div id="email-login">
+    <div id="email-login" class="block">
       <input id="email" type="email" placeholder="Email" class="w-full border p-2 rounded mb-3">
 
       <div class="relative mb-3">
         <input id="password" type="password" placeholder="Password" class="w-full border p-2 rounded pr-10">
         <span id="togglePassword" class="absolute inset-y-0 right-3 flex items-center cursor-pointer">👁️</span>
+      </div>
+
+      <!-- Turnstile CAPTCHA -->
+      <div class="mb-3">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAACBTBlZ1p7EZezem"></div>
       </div>
 
       <button id="loginBtn" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Login</button>
@@ -81,7 +66,7 @@
     </div>
 
     <!-- Social Login -->
-    <div id="social-login" class="hidden">
+    <div id="social-login" class="hidden mt-4">
       <button id="googleLogin" class="w-full bg-red-500 text-white py-2 rounded-lg mb-3 hover:bg-red-600">Login with Google</button>
       <button id="facebookLogin" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Login with Facebook</button>
     </div>
@@ -89,7 +74,7 @@
     <p id="message" class="text-center text-red-600 mt-4"></p>
   </div>
 
-  <!-- Modal Loader -->
+  <!-- Loader Modal -->
   <div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-2xl text-center shadow-xl">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mx-auto mb-4"></div>
@@ -118,5 +103,6 @@
       </div>
     </div>
   </div>
+
 </body>
 </html>

@@ -27,31 +27,25 @@ const tabSocial = document.getElementById("tab-social");
 const emailLogin = document.getElementById("email-login");
 const socialLogin = document.getElementById("social-login");
 
-if (tabEmail && tabSocial) {
-  tabEmail.addEventListener("click", () => {
-    emailLogin.classList.remove("hidden");
-    socialLogin.classList.add("hidden");
-    tabEmail.classList.add("border-green-600", "text-black");
-    tabSocial.classList.remove("border-green-600", "text-black");
-    tabSocial.classList.add("text-gray-500");
-  });
+tabEmail.addEventListener("click", () => {
+  emailLogin.classList.remove("hidden");
+  socialLogin.classList.add("hidden");
+  tabEmail.classList.add("border-green-600", "text-black");
+  tabSocial.classList.remove("border-green-600", "text-black");
+  tabSocial.classList.add("text-gray-500");
+});
 
-  tabSocial.addEventListener("click", () => {
-    socialLogin.classList.remove("hidden");
-    emailLogin.classList.add("hidden");
-    tabSocial.classList.add("border-green-600", "text-black");
-    tabEmail.classList.remove("border-green-600", "text-black");
-    tabEmail.classList.add("text-gray-500");
-  });
-}
+tabSocial.addEventListener("click", () => {
+  socialLogin.classList.remove("hidden");
+  emailLogin.classList.add("hidden");
+  tabSocial.classList.add("border-green-600", "text-black");
+  tabEmail.classList.remove("border-green-600", "text-black");
+  tabEmail.classList.add("text-gray-500");
+});
 
 // --- Helper functions for modals ---
-window.showLoader = () => {
-  document.getElementById("loadingModal").classList.remove("hidden");
-};
-window.hideLoader = () => {
-  document.getElementById("loadingModal").classList.add("hidden");
-};
+window.showLoader = () => document.getElementById("loadingModal").classList.remove("hidden");
+window.hideLoader = () => document.getElementById("loadingModal").classList.add("hidden");
 window.showAlert = (title, message) => {
   document.getElementById("alertTitle").textContent = title;
   document.getElementById("alertMessage").textContent = message;
@@ -66,10 +60,17 @@ const forgotLink = document.getElementById("forgotPasswordLink");
 const forgotModal = document.getElementById("forgotPasswordModal");
 const resetCancel = document.getElementById("resetCancel");
 
-forgotLink.addEventListener("click", (e) => {
+forgotLink.addEventListener("click", e => {
   e.preventDefault();
   forgotModal.classList.remove("hidden");
 });
-resetCancel.addEventListener("click", () => {
-  forgotModal.classList.add("hidden");
+resetCancel.addEventListener("click", () => forgotModal.classList.add("hidden"));
+
+// --- Turnstile verification on email login ---
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const tokenEl = document.querySelector("[name='cf-turnstile-response']");
+  if (!tokenEl || !tokenEl.value) {
+    showAlert("Error", "Please complete the CAPTCHA.");
+    return false;
+  }
 });

@@ -1,9 +1,5 @@
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAnalytics
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -29,10 +25,17 @@ const app = initializeApp(firebaseConfig);
 getAnalytics(app);
 const auth = getAuth();
 
-// --- Email Login ---
+// --- Email Login with Turnstile ---
 document.getElementById("loginBtn").addEventListener("click", () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
+
+  // Get Turnstile token
+  const tokenEl = document.querySelector("[name='cf-turnstile-response']");
+  if (!tokenEl || !tokenEl.value) {
+    showAlert("Error", "Please complete the CAPTCHA.");
+    return;
+  }
 
   if (!email || !password) {
     showAlert("Error", "Please enter both email and password.");
@@ -44,7 +47,6 @@ document.getElementById("loginBtn").addEventListener("click", () => {
     .then(userCredential => {
       hideLoader();
       showAlert("Success", "Login successful! Redirecting...");
-      console.log("User:", userCredential.user);
       setTimeout(() => window.location.href = "/agreement/", 1500);
     })
     .catch(error => {
@@ -61,7 +63,6 @@ document.getElementById("googleLogin").addEventListener("click", () => {
     .then(result => {
       hideLoader();
       showAlert("Success", "Google login successful!");
-      console.log(result.user);
       setTimeout(() => window.location.href = "/agreement/", 1500);
     })
     .catch(error => {
@@ -78,7 +79,6 @@ document.getElementById("facebookLogin").addEventListener("click", () => {
     .then(result => {
       hideLoader();
       showAlert("Success", "Facebook login successful!");
-      console.log(result.user);
       setTimeout(() => window.location.href = "/agreement/", 1500);
     })
     .catch(error => {
