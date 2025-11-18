@@ -118,3 +118,26 @@ img {
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
+
+/* ───────────── Sticky (Frozen) Table Header ───────────── */
+
+.table-container {
+  max-height: 450px;       /* adjust height if you want */
+  overflow-y: auto;
+  border-radius: 4px;
+}
+
+/* Make header stay visible when scrolling */
+table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #c20d0d; /* maintain your red header color */
+  color: white;
+}
+/* Highlight clicked row */
+tr.selected-row {
+  background-color: #ffe08a !important;   /* yellow highlight */
+  transition: background-color 0.25s ease;
+}
+

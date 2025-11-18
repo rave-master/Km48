@@ -32,6 +32,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 </head>
+
+
+
 <body>
 
 <!-- Top bar -->
@@ -81,13 +84,16 @@
 </div>
 
 <!-- Data table -->
-<table id="dataTable">
-  <thead>
-    <tr id="tableHeader"></tr>
-  </thead>
-  <tbody id="tableBody"></tbody>
-  <tfoot id="tableFooter"></tfoot>
-</table>
+<div class="table-container">
+  <table id="dataTable">
+    <thead>
+      <tr id="tableHeader"></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+    <tfoot id="tableFooter"></tfoot>
+  </table>
+</div>
+
 
 <div id="noDataMessage" class="no-data" style="display:none;">No records for selected month.</div>
 

@@ -296,6 +296,22 @@ fetch(DATA_URL)
     renderTable();
   });
 
+// Row highlight on click
+document.addEventListener("click", function(e) {
+  const row = e.target.closest("tr");
+  if (!row || row.parentNode.tagName === "THEAD") return; // ignore header
+  
+  // Remove highlight from all rows
+  document.querySelectorAll("tr").forEach(r => r.classList.remove("selected-row"));
+
+  // Highlight clicked row
+  row.classList.add("selected-row");
+});
+
+
+
+
+
 // ---------------- Disable Right Click / Inspect ----------------
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.onkeydown = function(e) {
