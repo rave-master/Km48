@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CENRO Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Mobile-friendly touch interactions */
+        @media (hover: none) and (pointer: coarse) {
+            .card-hover:active {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #d40000 0%, #cd1919 50%, #e34343 100%);
+  background-size: 300% 300%; /* Make it larger for movement */
+  animation: gradientMove 3s ease infinite; /* Animation name, duration, easing, repeat */
+        }
+        
+        .wood-pattern {
+            background-image: 
+                radial-gradient(circle at 25% 25%, #8B4513 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #A0522D 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .card-hover {
+                margin-bottom: 1rem;
+            }
+            
+            .gradient-bg {
+                padding: 2rem 1rem;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        /* Ensure touch targets are large enough */
+        .card-hover {
+            min-height: 200px;
+            touch-action: manipulation;
+        }
+        
+        /* Improve text readability on mobile */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem !important;
+                line-height: 1.2;
+            }
+            
+            .text-xl {
+                font-size: 1.125rem;
+            }
+            
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<!-- Firebase + Admin Protection + Header UI -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // --- Firebase config ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyD2xLVGe79OxzEHC2uXNMcbCtWugGn2M_k",
+    authDomain: "simple-logon.firebaseapp.com",
+    projectId: "simple-logon",
+    storageBucket: "simple-logon.firebasestorage.app",
+    messagingSenderId: "698709393716",
+    appId: "1:698709393716:web:5d93c85f962769d8a42561",
+    measurementId: "G-H25FHTK2S5"
+  };
+
+  // --- Initialize Firebase ---
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // --- Logout function ---
+  function logout() {
+    signOut(auth).then(() => {
+      window.location.href = "/index.html";
+    }).catch((err) => {
+      console.error("Sign out error:", err);
+      window.location.href = "/index.html";
+    });
+  }
+  window.logout = logout;
+
+  // --- Header UI builder ---
+  function ensureHeaderUI() {
+    const header = document.querySelector('body > header');
+    if (!header) return;
+
+    let userArea = header.querySelector('#user-area');
+    if (!userArea) {
+      userArea = document.createElement('div');
+      userArea.id = 'user-area';
+      userArea.style.position = 'absolute';
+      userArea.style.top = '10px';
+      userArea.style.right = '16px';
+      userArea.style.display = 'flex';
+      userArea.style.alignItems = 'center';
+      userArea.style.gap = '10px';
+      userArea.style.zIndex = '50';
+      userArea.style.background = 'rgba(255,255,255,0.08)';
+      userArea.style.padding = '6px 8px';
+      userArea.style.borderRadius = '9999px';
+      userArea.style.backdropFilter = 'blur(4px)';
+
+      const userInfo = document.createElement('span');
+      userInfo.id = 'user-info';
+      userInfo.style.color = 'white';
+      userInfo.style.fontSize = '0.9rem';
+      userInfo.style.display = 'inline-flex';
+      userInfo.style.alignItems = 'center';
+      userInfo.style.gap = '8px';
+
+      const logoutBtn = document.createElement('button');
+      logoutBtn.id = 'logout-btn';
+      logoutBtn.textContent = 'Sign out';
+      logoutBtn.style.background = 'transparent';
+      logoutBtn.style.border = '1px solid rgba(255,255,255,0.18)';
+      logoutBtn.style.color = 'white';
+      logoutBtn.style.padding = '6px 10px';
+      logoutBtn.style.borderRadius = '8px';
+      logoutBtn.style.cursor = 'pointer';
+      logoutBtn.style.fontSize = '0.85rem';
+      logoutBtn.style.display = 'none';
+      logoutBtn.onclick = logout;
+
+      userArea.appendChild(userInfo);
+      userArea.appendChild(logoutBtn);
+      header.style.position = header.style.position || 'relative';
+      header.appendChild(userArea);
+    }
+  }
+
+  function updateUserUI(user) {
+    const userInfo = document.getElementById("user-info");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if (!user) {
+      window.location.href = "/index.html";
+      return;
+    }
+
+    if (userInfo) {
+      userInfo.textContent = `Welcome, ${user.displayName || user.email || 'User'}`;
+      if (user.photoURL) {
+        let img = userInfo.querySelector('img');
+        if (!img) {
+          img = document.createElement('img');
+          img.alt = 'Profile';
+          img.style.width = '28px';
+          img.style.height = '28px';
+          img.style.borderRadius = '50%';
+          img.style.objectFit = 'cover';
+          img.style.flex = '0 0 auto';
+          userInfo.prepend(img);
+        }
+        img.src = user.photoURL;
+      }
+    }
+
+    if (logoutBtn) {
+      logoutBtn.style.display = 'inline-block';
+    }
+  }
+
+  // --- Admin protection + UI ---
+  onAuthStateChanged(auth, async (user) => {
+    // hide page until verified
+    document.body.style.display = "none";
+
+    if (!user) {
+      window.location.href = "/index.html";
+      return;
+    }
+
+    // check if user exists in admin collection
+    const adminRef = doc(db, "admin", user.uid);
+    const adminSnap = await getDoc(adminRef);
+    if (!adminSnap.exists()) {
+      console.warn("ACCESS DENIED: User is not admin");
+      window.location.href = "/agreement/";
+      return;
+    }
+
+    // Admin verified
+    ensureHeaderUI();
+    updateUserUI(user);
+    document.body.style.display = "block"; // show admin page
+    console.log("ADMIN Verified:", user.email);
+  });
+</script>
+
+
+
+
+<body style="display:none;">
+
+
+<body class="bg-[url('/de.jpg')] bg-cover bg-center bg-fixed">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6 sm:py-8 shadow-2xl">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-4 fade-in leading-tight">DENR-PENRO Davao del Norte<br>Forest Resource Regulation Dashboard</vr></h1>
+            <p class="text-sm sm:text-lg opacity-80 fade-in stagger-2 px-2">Enhancing Regulatory Oversight for Forest Protection</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div class="text-center mb-8 sm:mb-12 fade-in stagger-2">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 sm:mb-4">Select Monitoring Dashboard</h2>
+            <p class="text-gray-600 text-base sm:text-lg px-4">By selecting, you acknowledge that you have read, understood, and agree to comply with all terms and conditions.</p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
+            <!-- WPP New Corella Card -->
+            <div class="card-hover bg-white rounded-xl shadow-2xl overflow-hidden cursor-pointer fade-in stagger-3" onclick="window.location.href='/wpp_cnc'">
+                <div class="h-24 sm:h-32 relative overflow-hidden">
+                    <img src="https://ia601304.us.archive.org/32/items/2_20251009_202510/3.png" alt="CENRO New Corella" class="w-full h-full object-cover" onerror="this.src=''; this.alt='Image failed to load'; this.parentElement.classList.add('bg-gradient-to-r', 'from-green-400', 'to-green-600', 'wood-pattern');">
+                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div class="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
+                        <span class="text-2xl sm:text-3xl">🏭</span>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Wood Processing Plant</h3>
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">CENRO New Corella</p>
+                    <div class="flex items-center text-green-600">
+                        <span class="text-sm font-medium">Access System</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WPP Panabo City Card -->
+            <div class="card-hover bg-white rounded-xl shadow-2xl overflow-hidden cursor-pointer fade-in stagger-4" onclick="window.location.href='/wpp_cpc'">
+                <div class="h-24 sm:h-32 relative overflow-hidden">
+                    <img src="https://ia601304.us.archive.org/32/items/2_20251009_202510/1.png" alt="CENRO Panabo" class="w-full h-full object-cover" onerror="this.src=''; this.alt='Image failed to load'; this.parentElement.classList.add('bg-gradient-to-r', 'from-blue-400', 'to-blue-600', 'wood-pattern');">
+                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div class="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
+                        <span class="text-2xl sm:text-3xl">🏭</span>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Wood Processing Plant</h3>
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">CENRO Panabo City</p>
+                    <div class="flex items-center text-blue-600">
+                        <span class="text-sm font-medium">Access System</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lumber Dealer Panabo Card -->
+            <div class="card-hover bg-white rounded-xl shadow-2xl overflow-hidden cursor-pointer fade-in stagger-5" onclick="window.location.href='/lumber_cpc'">
+                <div class="h-24 sm:h-32 relative overflow-hidden">
+                    <img src="https://ia601304.us.archive.org/32/items/2_20251009_202510/1.png" alt="CENRO Panabo" class="w-full h-full object-cover" onerror="this.src=''; this.alt='Image failed to load'; this.parentElement.classList.add('bg-gradient-to-r', 'from-amber-400', 'to-amber-600', 'wood-pattern');">
+                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div class="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
+                        <span class="text-2xl sm:text-3xl">🪵</span>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Lumber Dealer</h3>
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">CENRO Panabo City</p>
+                    <div class="flex items-center text-amber-600">
+                        <span class="text-sm font-medium">Access System</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lumber Dealer New Corella Card -->
+            <div class="card-hover bg-white rounded-xl shadow-2xl overflow-hidden cursor-pointer fade-in stagger-3" onclick="window.location.href='/lumber_cnc'">
+                <div class="h-24 sm:h-32 relative overflow-hidden">
+                    <img src="https://ia601304.us.archive.org/32/items/2_20251009_202510/3.png" alt="CENRO New Corella" class="w-full h-full object-cover" onerror="this.src=''; this.alt='Image failed to load'; this.parentElement.classList.add('bg-gradient-to-r', 'from-orange-400', 'to-orange-600', 'wood-pattern');">
+                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div class="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
+                        <span class="text-2xl sm:text-3xl">🪵</span>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Lumber Dealer</h3>
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">CENRO New Corella</p>
+                    <div class="flex items-center text-orange-600">
+                        <span class="text-sm font-medium">Access System</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Km48 Monitoring Dashboard Card -->
+            <div class="card-hover bg-white rounded-xl shadow-2xl overflow-hidden cursor-pointer fade-in stagger-4 sm:col-span-2 lg:col-span-1" onclick="window.location.href='/transport'">
+                <div class="h-24 sm:h-32 relative overflow-hidden">
+                    <img src="https://ia601304.us.archive.org/32/items/2_20251009_202510/Km48.png" alt="Km48 Monitoring" class="w-full h-full object-cover" onerror="this.src=''; this.alt='Image failed to load'; this.parentElement.classList.add('bg-gradient-to-r', 'from-purple-400', 'to-purple-600');">
+                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+                    <div class="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 text-white">
+                        <span class="text-2xl sm:text-3xl">📊</span>
+                    </div>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Km48 Monitoring</h3>
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Dashboard System</p>
+                    <div class="flex items-center text-purple-600">
+                        <span class="text-sm font-medium">Access Dashboard</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 sm:py-8 mt-12 sm:mt-16">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <p class="text-gray-400 text-sm sm:text-base">© 2025 Department of Environment and Natural Resources, Republic of the Philippines.</p>
+            <p class="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2">Protecting and conserving the environment and natural resources for sustainable development</p>
+        </div>
+    </footer>
+
+    <!-- Hidden Pages -->
+    <div id="pages" style="display: none;">
+        <!-- WPP New Corella Page -->
+        <div id="wpp-new-corella-page" class="min-h-full bg-gray-50">
+            <header class="bg-green-600 text-white py-6">
+                <div class="container mx-auto px-6">
+                    <button onclick="goHome()" class="mb-4 text-green-200 hover:text-white flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Home
+                    </button>
+                    <h1 class="text-3xl font-bold">🏭 Wood Processing Plant - CENRO New Corella</h1>
+                </div>
+            </header>
+            <main class="container mx-auto px-6 py-8">
+                <div class="bg-white rounded-lg shadow-2xl p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to WPP New Corella</h2>
+                    <p class="text-gray-600">This is the Wood Processing Plant management system for CENRO New Corella. Here you can manage operations, track inventory, and monitor production.</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- WPP Panabo Page -->
+        <div id="wpp-panabo-page" class="min-h-full bg-gray-50">
+            <header class="bg-blue-600 text-white py-6">
+                <div class="container mx-auto px-6">
+                    <button onclick="goHome()" class="mb-4 text-blue-200 hover:text-white flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Home
+                    </button>
+                    <h1 class="text-3xl font-bold">🏭 Wood Processing Plant - CENRO Panabo City</h1>
+                </div>
+            </header>
+            <main class="container mx-auto px-6 py-8">
+                <div class="bg-white rounded-lg shadow-2xl p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to WPP Panabo City</h2>
+                    <p class="text-gray-600">This is the Wood Processing Plant management system for CENRO Panabo City. Manage your wood processing operations efficiently.</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- Lumber Dealer Panabo Page -->
+        <div id="lumber-panabo-page" class="min-h-full bg-gray-50">
+            <header class="bg-amber-600 text-white py-6">
+                <div class="container mx-auto px-6">
+                    <button onclick="goHome()" class="mb-4 text-amber-200 hover:text-white flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Home
+                    </button>
+                    <h1 class="text-3xl font-bold">🪵 Lumber Dealer - CENRO Panabo City</h1>
+                </div>
+            </header>
+            <main class="container mx-auto px-6 py-8">
+                <div class="bg-white rounded-lg shadow-2xl p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to Lumber Dealer Panabo</h2>
+                    <p class="text-gray-600">Manage lumber dealer operations and track wood product distribution in Panabo City.</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- Lumber Dealer New Corella Page -->
+        <div id="lumber-new-corella-page" class="min-h-full bg-gray-50">
+            <header class="bg-orange-600 text-white py-6">
+                <div class="container mx-auto px-6">
+                    <button onclick="goHome()" class="mb-4 text-orange-200 hover:text-white flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Home
+                    </button>
+                    <h1 class="text-3xl font-bold">🪵 Lumber Dealer - CENRO New Corella</h1>
+                </div>
+            </header>
+            <main class="container mx-auto px-6 py-8">
+                <div class="bg-white rounded-lg shadow-2xl p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to Lumber Dealer New Corella</h2>
+                    <p class="text-gray-600">Manage lumber dealer operations and track wood product distribution in New Corella.</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- Km48 Dashboard Page -->
+        <div id="km48-dashboard-page" class="min-h-full bg-gray-50">
+            <header class="bg-purple-600 text-white py-6">
+                <div class="container mx-auto px-6">
+                    <button onclick="goHome()" class="mb-4 text-purple-200 hover:text-white flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Home
+                    </button>
+                    <h1 class="text-3xl font-bold">📊 Km48 Monitoring Dashboard</h1>
+                </div>
+            </header>
+            <main class="container mx-auto px-6 py-8">
+                <div class="bg-white rounded-lg shadow-2xl p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Km48 Monitoring System</h2>
+                    <p class="text-gray-600">Real-time monitoring dashboard for Km48 operations. Track activities, generate reports, and monitor compliance.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 'home';
+
+        function navigateToPage(pageId) {
+            // Hide home page
+            document.querySelector('body > header').style.display = 'none';
+            document.querySelector('body > main').style.display = 'none';
+            document.querySelector('body > footer').style.display = 'none';
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                targetPage.style.display = 'block';
+                document.getElementById('pages').style.display = 'block';
+                currentPage = pageId;
+            }
+        }
+
+        function goHome() {
+            // Hide all pages
+            document.getElementById('pages').style.display = 'none';
+            const allPages = document.querySelectorAll('#pages > div');
+            allPages.forEach(page => page.style.display = 'none');
+            
+            // Show home page
+            document.querySelector('body > header').style.display = 'block';
+            document.querySelector('body > main').style.display = 'block';
+            document.querySelector('body > footer').style.display = 'block';
+            currentPage = 'home';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98be5af16357fed8',t:'MTc2MDAxNzkxMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
